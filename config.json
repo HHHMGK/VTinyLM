@@ -1,0 +1,9 @@
+{
+    "path": {
+        "save": "./output/"
+    },
+    "model": {
+        "use_base": true,
+        "base_model_name": "vinai/PhoGPT-4B-Chat"
+    }
+}
