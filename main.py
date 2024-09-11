@@ -9,11 +9,13 @@ import json, csv
 parser = argparse.ArgumentParser(description='')
 parser.add_argument('run_mode', type=str, default='train', choices=['train','eval'], help='Mode run mode')
 parser.add_argument('--config', type=str, default='config.json', help='Path to config file')
+# parser.add_argument('--verbose', type=int, default=0, choices=[0,1,2], help='Verbose mode, 0 = silent, 1 = print log, 2 = print all')
 
 # For EVALuating mode
 parser.add_argument('--benchmark', type=str, default='perplexity-vn', choices=['perplexity-vn','perplexity-en','villm-eval'], help='Benchmark to evaluate')
 parser.add_argument('--model', type=str, default='', help='Base model name')
 parser.add_argument('--modification', type=str, default='layer_reduction', choices=['layer_reduction'], help='Model modification method')
+
 # Import config from config.json
 
 args = parser.parse_args()
@@ -25,13 +27,15 @@ if args.run_mode == 'train':
     print('Config path:', args.config)
     
 if args.run_mode == 'eval':
-    print('Evaluating')
-    print('Benchmark:', args.benchmark)
+    print('Evaluating with benchmark:', args.benchmark)
     
+    print('Loading model:', args.model)
     base_model = load_model(args.model)
     tokenizer = load_tokenizer(args.model)
+    print('Model loaded')
     results = []
     if args.benchmark == 'perplexity-vn':
+        results.append(['Modification', 'Perplexity'])
         if args.modification == 'layer_reduction':
             while True:
                 model, layer_start, layer_end = layer_reduction(base_model)
