@@ -3,7 +3,7 @@ import os, gc
 from model import load_model, load_tokenizer, layer_reduction
 from eval import eval_perplexity
 import torch
-import json
+import json, csv
 
 # Take arg from command line
 parser = argparse.ArgumentParser(description='')
@@ -44,5 +44,6 @@ if args.run_mode == 'eval':
                 gc.collect()
                 torch.cuda.empty_cache()
 
-    with open('results.json','w') as f:
-        json.dump(results, f)
+    with open('results.csv','w') as f:
+        csv_writer = csv.writer(f)
+        csv_writer.writerows(results)
