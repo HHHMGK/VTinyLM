@@ -37,8 +37,9 @@ if args.run_mode == 'eval':
     if args.benchmark == 'perplexity-vn':
         results.append(['Modification', 'Perplexity'])
         if args.modification == 'layer_reduction':
+            new_model_generator = layer_reduction(base_model)
             while True:
-                model, layer_start, layer_end = layer_reduction(base_model)
+                model, layer_start, layer_end = next(new_model_generator)
                 if model is None:
                     break
                 print(f'Evaluating model with layers from {layer_start} to {layer_end} removed')
