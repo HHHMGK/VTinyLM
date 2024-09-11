@@ -29,8 +29,13 @@ def layer_reduction(model, num_layers = None):
             del_blocks = list(copy.deepcopy(model.transformer.blocks[i:i+n]))
             del model.transformer.blocks[i:i+n]
             yield model, i, i+n-1
-            model.transformer.blocks[i:i+n] = del_blocks
-            del del_blocks
+            # model.transformer.blocks[i:i+n] = del_blocks
+            # del del_blocks
+            for j, block in enumerate(del_blocks):
+                if i + j < len(model.transformer.blocks):
+                    model.transformer.blocks.insert(i + j, block)
+                else:
+                    model.transformer.blocks.append(block)
             i+=n
 
     return None
