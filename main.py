@@ -37,7 +37,9 @@ if args.run_mode == 'eval':
                 model, layer_start, layer_end = layer_reduction(base_model)
                 if model is None:
                     break
+                print(f'Evaluating model with layers from {layer_start} to {layer_end} removed')
                 perplexity = eval_perplexity(model, tokenizer, device, lang='vn')
+                print(f'Perplexity: {perplexity}')
                 results.append([f'Removed {layer_start} to {layer_end}', perplexity])
                 
                 del model
