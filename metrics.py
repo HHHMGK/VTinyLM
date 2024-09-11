@@ -1,6 +1,6 @@
 # Huggingface
-import eval
-from eval import logging
+import evaluate
+from evaluate import logging
 import datasets
 
 import numpy as np
