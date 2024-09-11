@@ -12,5 +12,17 @@ def load_tokenizer(model_name):
 def clone_model(model):
     return copy.deepcopy(model)
 
-    
+def layer_reduction(model, num_layers = None):
+    if num_layers is None:
+        num_layers = [1,2,4,10]
+    max_len = len(model.transformer.blocks)
+    for n in num_layers:
+        i = 0
+        while i + n - 1 < max_len:
+            new_model = clone_model(model)
+            del new_model.transformer.blocks[i:i+n-1]   
+            yield model, i, i+n-1
+            i+=n
+
+    return None
     
