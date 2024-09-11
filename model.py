@@ -19,9 +19,17 @@ def layer_reduction(model, num_layers = None):
     for n in num_layers:
         i = 0
         while i + n - 1 < max_len:
-            new_model = clone_model(model)
-            del new_model.transformer.blocks[i:i+n-1]   
+            # Memory intensive
+            # new_model = clone_model(model)
+            # del new_model.transformer.blocks[i:i+n-1]   
+            # yield model, i, i+n-1
+            # i+=n
+            
+            # Memory efficient
+            del_blocks = copy.deepcopy(model.transformer.blocks[i:i+n])
+            del model.transformer.blocks[i:i+n]
             yield model, i, i+n-1
+            model.transformer.blocks[i:i+n] = del_blocks
             i+=n
 
     return None
