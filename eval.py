@@ -49,6 +49,6 @@ def eval_perplexity(model, tokenizer, device, lang='vn'):
 
     model.to('cpu')
     torch.cuda.empty_cache()
-    return perplexity_score
+    return perplexity_score['mean_perplexity']
         
     

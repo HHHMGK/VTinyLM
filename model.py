@@ -26,10 +26,11 @@ def layer_reduction(model, num_layers = None):
             # i+=n
             
             # Memory efficient
-            del_blocks = copy.deepcopy(model.transformer.blocks[i:i+n])
+            del_blocks = list(copy.deepcopy(model.transformer.blocks[i:i+n]))
             del model.transformer.blocks[i:i+n]
             yield model, i, i+n-1
             model.transformer.blocks[i:i+n] = del_blocks
+            del del_blocks
             i+=n
 
     return None
