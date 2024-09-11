@@ -18,6 +18,8 @@ parser.add_argument('--modification', type=str, default='layer_reduction', choic
 
 args = parser.parse_args()
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 if args.run_mode == 'train':
     print('Training')
     print('Config path:', args.config)
@@ -30,13 +32,12 @@ if args.run_mode == 'eval':
     tokenizer = load_tokenizer(args.model)
     results = []
     if args.benchmark == 'perplexity-vn':
-        eval_perplexity(None, None, None, lang='vn')
         if args.modification == 'layer_reduction':
             while True:
                 model, layer_start, layer_end = layer_reduction(base_model)
                 if model is None:
                     break
-                perplexity = eval_perplexity(model, tokenizer, None, lang='vn')
+                perplexity = eval_perplexity(model, tokenizer, device, lang='vn')
                 results.append([f'Removed {layer_start} to {layer_end}', perplexity])
                 
                 del model
