@@ -1,7 +1,7 @@
 import argparse
 import os, gc
 from model import load_model, load_tokenizer, layer_reduction
-from evaluate import eval_perplexity
+from eval import eval_perplexity
 import torch
 import json
 
@@ -11,7 +11,7 @@ parser.add_argument('run_mode', type=str, default='train', choices=['train','eva
 parser.add_argument('--config', type=str, default='config.json', help='Path to config file')
 
 # For EVALuating mode
-parser.add_argument('--benchmark', type=str, default='perplexity', choices=['perplexity-vn','perplexity-en','villm-eval'], help='Benchmark to evaluate')
+parser.add_argument('--benchmark', type=str, default='perplexity-vn', choices=['perplexity-vn','perplexity-en','villm-eval'], help='Benchmark to evaluate')
 parser.add_argument('--model', type=str, default='', help='Base model name')
 parser.add_argument('--modification', type=str, default='layer_reduction', choices=['layer_reduction'], help='Model modification method')
 # Import config from config.json

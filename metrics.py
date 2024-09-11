@@ -1,6 +1,6 @@
 # Huggingface
-import evaluate
-from evaluate import logging
+import eval
+from eval import logging
 import datasets
 
 import numpy as np
@@ -9,9 +9,9 @@ import torch
 
 # Custom perplexity metric from Huggingface evaluate module
 # Changed the implementation of _compute for custom model and tokenizer
-class Perplexity(evaluate.Metric):
+class Perplexity(eval.Metric):
     def _info(self):
-        return evaluate.MetricInfo(
+        return eval.MetricInfo(
             module_type="metric",
             description="_DESCRIPTION",
             citation="_CITATION",
