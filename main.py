@@ -59,6 +59,6 @@ if args.run_mode == 'eval':
                 gc.collect()
                 torch.cuda.empty_cache()
 
-    with open('results.csv','w') as f:
+    with open(args.output,'w') as f:
         csv_writer = csv.writer(f)
         csv_writer.writerows(results)
