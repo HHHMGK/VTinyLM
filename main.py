@@ -39,7 +39,7 @@ if args.run_mode == 'eval':
         if args.modification == 'layer_reduction':
             new_model_generator = layer_reduction(base_model)
             while True:
-                model, layer_start, layer_end = next(new_model_generator)
+                model, layer_start, layer_end = next(new_model_generator, (None, None, None))
                 if model is None:
                     break
                 print(f'Evaluating model with layers from {layer_start} to {layer_end} removed')
