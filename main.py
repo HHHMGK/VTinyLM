@@ -36,11 +36,14 @@ if args.run_mode == 'eval':
     results = []
     if args.benchmark == 'perplexity-vn':
         results.append(['Modification', 'Perplexity'])
+
         if args.modification == 'base':
             print('Evaluating base model')
             perplexity = eval_perplexity(base_model, tokenizer, device, lang='vn')
             print(f'Perplexity: {perplexity}')
             results.append(['Base model', perplexity])
+            torch.cuda.empty_cache()
+        
         if args.modification == 'layer_reduction':
             new_model_generator = layer_reduction(base_model)
             while True:
