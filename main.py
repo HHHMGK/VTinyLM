@@ -83,7 +83,9 @@ if args.run_mode == 'eval':
 
     with open(args.output,'w') as f:
         csv_writer = csv.writer(f)
-        csv_writer.writerows(results)
+        for k,v in results.items():
+            csv_writer.writerow([k]+v)
+            
 
 if args.run_mode == 'infer':
     print('Infering')
