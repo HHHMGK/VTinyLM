@@ -19,12 +19,12 @@ parser.add_argument('--benchmark', type=str, default='perplexity-vn', choices=['
 parser.add_argument('--repeat', type=int, default=1, help='Number of evaluation to repeat')
 parser.add_argument('--modification', type=str, default='layer_reduction', choices=['layer_reduction'], help='Model modification method')
 parser.add_argument('--eval_base', type=bool, default=True, help='Evaluate base model or not')
-parser.add_argument('--output', type=str, default='results.csv', help='Output file for evaluation results')
+parser.add_argument('--output', type=str, default='results.csv', help='Output file for results')
 
 # For INFERing mode
 parser.add_argument('--prompt', type=str, default='', help='Input prompt for inference')
 parser.add_argument('--file', type=str, default='', help='Input file for inference')
-parser.add_argument('--output', type=str, default='output.txt', help='Output file for inference results')
+# parser.add_argument('--output', type=str, default='output.txt', help='Output file for results')
 # Import config from config.json
 
 args = parser.parse_args()
@@ -85,7 +85,7 @@ if args.run_mode == 'eval':
         csv_writer = csv.writer(f)
         for k,v in results.items():
             csv_writer.writerow([k]+v)
-            
+
 
 if args.run_mode == 'infer':
     print('Infering')
