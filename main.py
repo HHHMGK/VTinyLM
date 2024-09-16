@@ -44,7 +44,7 @@ if args.run_mode == 'eval':
     base_model = load_model(args.model)
     tokenizer = load_tokenizer(args.model)
     print('Model loaded')
-    results = []
+    results = {}
     if args.benchmark == 'perplexity-vn':
         # results.append(['Modification', 'Perplexity'])
 
