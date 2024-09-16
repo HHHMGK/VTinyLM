@@ -1,3 +1,12 @@
+# latex aux files
+uet-report/report.aux
+uet-report/report.fdb_latexmk
+uet-report/report.fls
+uet-report/report.log
+uet-report/report.synctex.gz
+uet-report/report.xdv
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
