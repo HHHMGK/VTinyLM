@@ -14,7 +14,7 @@ def clone_model(model):
 
 def layer_reduction(model, num_layers = None):
     if num_layers is None:
-        num_layers = [1,2,4,10]
+        num_layers = [1,2,4,8]
     max_len = len(model.transformer.blocks)
     for n in num_layers:
         i = 0
