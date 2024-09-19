@@ -1,0 +1,1 @@
+python main.py eval --benchmark perplexity-vn --base_model vinai/PhoGPT-4B-Chat --output results.csv --modification layer_reduction --measure_time True

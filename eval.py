@@ -36,6 +36,10 @@ def eval_perplexity(model, tokenizer, device, lang='vn', repeat=1, measure_time=
     model.to('cpu')
     torch.cuda.empty_cache()
 
+    perplexity_mean = perplexity_score[0]
+    perplexity_stddev = 0
+    time_mean = timing[0]
+    time_stddev = 0
     if repeat > 1:
         perplexity_mean = np.mean(perplexity_score)
         perplexity_stddev = np.std(perplexity_score)
