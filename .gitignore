@@ -6,6 +6,7 @@ uet-report/report.log
 uet-report/report.synctex.gz
 uet-report/report.xdv
 
+sandbox.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,5 +1,6 @@
-import copy, json
+import copy, json, time
 import torch
+import numpy as np
 from metrics import Perplexity
 
 with open('benchmarks.json','r') as f:
@@ -15,7 +16,7 @@ with open('benchmarks.json','r') as f:
 #     model.to('cpu')
 #     torch.cuda.empty_cache()
     
-def eval_perplexity(model, tokenizer, device, lang='vn', repeat=1):
+def eval_perplexity(model, tokenizer, device, lang='vn', repeat=1, measure_time=False):
     perplexity = Perplexity()
 
     prompts = BENCHMARKS["perplexity"]["data"][lang]
@@ -23,9 +24,25 @@ def eval_perplexity(model, tokenizer, device, lang='vn', repeat=1):
     model = model.to('cuda')
     model.eval()
     perplexity_score = []
-    for i in range(repeat):
-        perplexity_score.append(perplexity._compute(prompts, model, tokenizer, device)['mean_perplexity'])
-
+    if measure_time:
+        timing = []
+        for i in range(repeat):
+            start = time.time()
+            perplexity_score.append(perplexity._compute(prompts, model, tokenizer, device)['mean_perplexity'])
+            timing.append(time.time()-start)
+    else:
+        for i in range(repeat):
+            perplexity_score.append(perplexity._compute(prompts, model, tokenizer, device)['mean_perplexity'])
     model.to('cpu')
     torch.cuda.empty_cache()
-    return perplexity_score
+
+    if repeat > 1:
+        perplexity_mean = np.mean(perplexity_score)
+        perplexity_stddev = np.std(perplexity_score)
+
+        if measure_time:
+            time_mean = np.mean(timing)
+            time_stddev = np.std(timing)
+
+    
+    return {'perplexity': (perplexity_mean, perplexity_stddev), 'time': (time_mean, time_stddev) if measure_time else None}
