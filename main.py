@@ -70,7 +70,7 @@ if args.run_mode == 'eval':
                 print(f'Evaluating model with layers from {layer_start} to {layer_end} removed')
                 eval_results = eval_perplexity(model, tokenizer, device, lang='vn', repeat=args.repeat, measure_time=args.measure_time)
                 print('Perplexity:', eval_results['perplexity'])
-                results.append({f'Modification':'Removed {layer_start} to {layer_end}', 
+                results.append({'Modification':f'Removed {layer_start} to {layer_end}', 
                             'Perplexity_mean':eval_results['perplexity'][0], 'Perplexity_stddev':eval_results['perplexity'][1], 
                             'Time_mean':eval_results['time'][0], 'Time_stddev':eval_results['time'][1]})
                 
