@@ -54,11 +54,11 @@ if args.run_mode == 'eval':
         if args.eval_base:
             print('Evaluating base model')
             eval_results = eval_perplexity(base_model, tokenizer, device, lang='vn', repeat=args.repeat, measure_time=args.measure_time)
-            print('Perplexity:', eval_results['perplexities'])
-            # _perplexity = f'{round(eval_results["perplexities"][0],3)} 0xC2 {round(round(eval_results["perplexities"][1],3))}'
+            print('Perplexity:', eval_results['perplexity'])
+            # _perplexity = f'{round(eval_results["perplexity"][0],3)} 0xC2 {round(round(eval_results["perplexity"][1],3))}'
             # _time = f'{round(eval_results["time"][0],3)} 0xC2 {round(round(eval_results["time"][1],3))}' if args.measure_time else None
             results.append({'Modification':'Base model', 
-                            'Perplexity_mean':eval_results['perplexities'][0], 'Perplexity_stddev':eval_results['perplexities'][1], 
+                            'Perplexity_mean':eval_results['perplexity'][0], 'Perplexity_stddev':eval_results['perplexity'][1], 
                             'Time_mean':eval_results['time'][0], 'Time_stddev':eval_results['time'][1]})
             
         if args.modification == 'layer_reduction':
@@ -69,9 +69,9 @@ if args.run_mode == 'eval':
                     break
                 print(f'Evaluating model with layers from {layer_start} to {layer_end} removed')
                 eval_results = eval_perplexity(model, tokenizer, device, lang='vn', repeat=args.repeat, measure_time=args.measure_time)
-                print('Perplexity:', eval_results['perplexities'])
+                print('Perplexity:', eval_results['perplexity'])
                 results.append({f'Modification':'Removed {layer_start} to {layer_end}', 
-                            'Perplexity_mean':eval_results['perplexities'][0], 'Perplexity_stddev':eval_results['perplexities'][1], 
+                            'Perplexity_mean':eval_results['perplexity'][0], 'Perplexity_stddev':eval_results['perplexity'][1], 
                             'Time_mean':eval_results['time'][0], 'Time_stddev':eval_results['time'][1]})
                 
                 del model
