@@ -24,6 +24,7 @@ parser.add_argument('--benchmark', type=str, default='perplexity-vn', choices=['
 parser.add_argument('--repeat', type=int, default=1, help='Number of evaluation to repeat')
 parser.add_argument('--modification', type=str, default='layer_reduction', choices=['layer_reduction'], help='Model modification method')
 parser.add_argument('--eval_base', type=bool, default=True, help='Evaluate base model or not')
+parser.add_argument('--layer_step', type=int, default=0, help='Step for layer modification')
 
 # For INFERing mode
 parser.add_argument('--prompt', type=str, default='', help='Input prompt for inference')
@@ -62,7 +63,7 @@ if args.run_mode == 'eval':
                             'Time_mean':eval_results['time'][0], 'Time_stddev':eval_results['time'][1]})
             
         if args.modification == 'layer_reduction':
-            new_model_generator = layer_reduction(base_model)
+            new_model_generator = layer_reduction(base_model, num_layers = None, step=args.layer_step)
             while True:
                 model, layer_start, layer_end = next(new_model_generator, (None, None, None))
                 if model is None:

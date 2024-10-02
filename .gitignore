@@ -1,12 +1,24 @@
 # latex aux files
-uet-report/report.aux
-uet-report/report.fdb_latexmk
-uet-report/report.fls
-uet-report/report.log
-uet-report/report.synctex.gz
-uet-report/report.xdv
+*.acn
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.synctex.gz
+*.xdv
+*.bbl
+*.blg
+*.glo
+*.ist
+*.lof
+*.lot
+*.out
+*.ntn
+*.toc
+*.pdfsync
 
 sandbox.py
+uet-report
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,0 +1,18 @@
+\chapter{Related Works}
+
+\section{PhoGPT}
+PhoGPT \cite{nguyen2024phogptgenerativepretrainingvietnamese} is a open-source state-of-the-art Transformer decoder-based model model series for Vietnamese, including the base pre-trained monolingual model PhoGPT-4B and its chat variant, PhoGPT-4B-Chat. The base model, PhoGPT-4B, with exactly 3.7B parameters, is pre-trained from scratch on a Vietnamese corpus of 102B tokens, with an 8192 context length, employing a vocabulary of 20480 token types. The chat variant, PhoGPT-4B-Chat, is the modeling output obtained by fine-tuning PhoGPT-4B on a dataset of 70K instructional prompts and their responses, along with an additional 290K conversations. \par
+The PhoGPT series has achieved state-of-the-art results on various Vietnamese NLP tasks. \par
+<TABLE here>
+
+\section{Tiny Language Models}
+The work of Yehui Tang et al. \cite{tang2024rethinkingoptimizationarchitecturetiny} introduces a series of experiments on Tiny Language Models (TLMs) based on Pangu, a large-scale  language model on Chinese and English. The authors propose a method to compress Pangu into Pangu-$\pi$-1B-pro and Pangu-$\pi$-1.5B-pro with 1B and 1.5B parameters, respectively. The experiments show that the TLMs can achieve competitive performance with a much smaller number of parameters compared to the original model. \par
+The authors propose many methods for creating the models, from the model architecture, parameter initialization, to the optimized training strategies. Firstly, for the model architecture, there are two main components: the tokenizer and the model itself:
+\begin{itemize}
+    \item As for the tokenizer, the authors after conducting experiments with different vocabulary sizes, they came to the conclusion that over 50\% vocabularies may be redundant as they cater to less than 3\% of the corpus. Therefore, they propose to choose the tokenizer that cover 90\% of the corpus vocabulary, which is the reduced one from Pangu-$\pi$ model, resulting in a vocabulary size of 48K instead of 100K tokens. 
+    \item And for the model architecture tweaking, the authors explored the impact of depth, width and the expanding rate of Feed-Forward Networks (FFN) on the performance of a 1B-size language model. They found that the depth of the model has a significant impact on the performance and inference speed, while the width and the expanding rate of FFN have a minor impact.
+
+\end{itemize}
+Secondly, when working with parameter initialization methods like random initialization and parameter inheritance, the authors found that the latter method can help the model perform better by preserving the knowledge of the pre-trained model and reducing the training time. \par
+By using both important inter-layer selection and intra-layer parameter selection strategies, the authors can choose which layers and neurons to inherit to the model, keeping the most important elements that contribute to the larger model's performance while vastly reducing the number of parameters. \par
+Finally, the authors propose a series of optimized training strategies after experimenting with batch size and learning rate, in combination with multiple-round training. This results in less hardware consumption while rectifying the problem of data forgetting due to the limitation in capacity of the model. \par

@@ -1,0 +1,292 @@
+\documentclass[oneside]{report}
+\usepackage[utf8]{inputenc}
+\usepackage{fancyhdr}
+\usepackage[vietnamese=nohyphenation]{hyphsubst}
+\usepackage[vietnamese, main=english]{babel}
+\usepackage[T5]{fontenc}
+\usepackage{graphicx}
+\usepackage{nameref}
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+% \usepackage{algpseudocode}
+\usepackage{booktabs}
+
+% \algrenewcommand\algorithmicrequire{\textbf{Input:}}
+% \algrenewcommand\algorithmicensure{\textbf{Output:}}
+
+% set font, font size and spacing
+\usepackage{times}
+\usepackage{scrextend}
+\changefontsizes{13pt}
+\renewcommand{\baselinestretch}{1.3}
+% section spacing
+\usepackage{titlesec}
+\titlespacing*{\section}{0pt}{0.5\baselineskip}{0.2\baselineskip}
+\titlespacing*{\subsection}{0pt}{0.4\baselineskip}{0.2\baselineskip}
+
+% setup page layout
+\usepackage[a4paper,left=30mm,top=20mm,bottom=25mm,right=20mm,]{geometry}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usetikzlibrary{decorations.pathmorphing}
+
+% Acronyms Auto
+\usepackage[nopostdot,toc,acronym,nomain,nonumberlist]{glossaries}
+\makeglossaries
+\setacronymstyle{long-short}
+\loadglsentries[acronym]{FrontMatter/Acronyms}
+\setlength{\glsdescwidth}{0.7\linewidth}
+
+% natbib
+% if use natbib, please comment out the cite
+\usepackage[sort,numbers]{natbib}
+% Citation
+% \usepackage{cite}
+
+% % prevent text overflow
+% \usepackage{babel}
+% \newcommand\fh{\babelhyphen{hard}}
+
+% Change indent
+% \usepackage{indentfirst} % indent also after section titles
+\setlength{\parindent}{1cm}
+\usepackage{enumitem}
+\setlist{leftmargin=1cm}
+
+% paragraph spacing
+\setlength{\parskip}{0.5em}
+
+% Change enumerate label
+\usepackage{enumitem}
+
+% Page numbering at the center top of page
+% \usepackage{fancyhdr} % Custom headers and footers
+% \pagestyle{fancyplain} % Makes all pages in the document conform to the custom headers and footers
+% \fancyhead[L]{}% Empty left header
+% \fancyhead[C]{\thepage} % Page numbering for center header  
+% \fancyhead[R]{}% Empty right header
+% \fancyfoot[L]{}% Empty left footer
+% \fancyfoot[C]{}% Empty center footer
+% \fancyfoot[R]{}% Empty left footer
+
+% Math equation
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{physics}
+
+% Table
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{bigstrut}
+\usepackage{multido}
+
+% Cover
+\usepackage{pdfpages}
+
+% Subfigure
+\usepackage{caption}
+\usepackage{subcaption}
+
+% pstricks fig
+\usepackage{epsfig}
+
+% Table of Contents
+\usepackage[hidelinks]{hyperref}
+% Uncomment if you want leading dot for chapter
+\usepackage{tocloft}
+\renewcommand{\cftpartleader}{\cftdotfill{\cftdotsep}} % for parts
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}} % for chapters
+\newcommand{\Pointilles}[1]{%
+  \par\nobreak
+  \noindent\rule{0pt}{1.5\baselineskip}% Provides a larger gap between the preceding paragraph and the dots
+  \multido{}{#1}{\noindent\makebox[\textwidth]{\dotfill}\endgraf}% ... dotted lines ...
+  % \bigskip% Gap between dots and next paragraph
+}
+\newtheorem{defn}{Definition}
+
+%preamble auto add toc
+\usepackage{tocbibind}
+
+% table fixed width column
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+\title{Summer Internship Report}
+\author{Ngo Duc Huy}
+\date{September 2024}
+
+\begin{document}
+\begin{titlepage}
+    \begin{tikzpicture}[overlay,remember picture]
+        \draw [line width=3pt]
+            ($ (current page.north west) + (2.0cm,-2.0cm) $)
+            rectangle
+            ($ (current page.south east) + (-1.5cm,1.8cm) $);
+        \draw [line width=1pt]
+            ($ (current page.north west) + (2.15cm,-2.15cm) $)
+            rectangle
+            ($ (current page.south east) + (-1.65cm,1.95cm) $); 
+    \end{tikzpicture}
+    
+    \begin{center}
+        % \vspace*{1cm}
+        \large
+        \textbf{VIETNAM NATIONAL UNIVERSITY, HANOI \\
+        UNIVERSITY OF ENGINEERING AND TECHNOLOGY}
+
+        \vspace{1.5cm}
+        \includegraphics[width=0.3\textwidth]{FrontMatter/uet.png}
+            
+        \vspace{0.5cm}
+        \large
+        \textbf{NGO DUC HUY}
+        
+        \vspace{1.5cm}
+        \large
+        \textbf{TITLE}
+            
+        \vspace{2.5cm}
+        \large
+        \textbf{SUMMER INTERNSHIP REPORT \\
+        Major}: Computer Science       
+
+        \vspace{1cm}
+        \textbf{Supervisor: Dr. Ta Viet Cuong} 
+        
+        \vfill
+        \large
+        \textbf{HANOI - 2024}
+    \end{center}
+\end{titlepage}
+
+\begin{titlepage}
+    \begin{tikzpicture}[overlay,remember picture]
+        \draw [line width=3pt]
+            ($ (current page.north west) + (2.0cm,-2.0cm) $)
+            rectangle
+            ($ (current page.south east) + (-1.5cm,1.8cm) $);
+        \draw [line width=1pt]
+            ($ (current page.north west) + (2.15cm,-2.15cm) $)
+            rectangle
+            ($ (current page.south east) + (-1.65cm,1.95cm) $); 
+    \end{tikzpicture}
+    
+    \begin{center}
+        % \vspace*{1cm}
+        \large
+        \textbf{VIETNAM NATIONAL UNIVERSITY, HANOI \\
+        UNIVERSITY OF ENGINEERING AND TECHNOLOGY}
+
+        \vspace{3cm}
+        \large
+        \textbf{INTERNSHIP REPORT}
+            
+        \vspace{1.5cm}
+        
+        \textbf{TITLE}
+            
+        \vspace{2.5cm}
+        \large
+        % \textbf{BACHELOR THESIS \\
+        % Major}: Computer Science       
+
+        % \vspace{1cm}
+        % \textbf{Supervisor: Dr. Ta Viet Cuong}   
+        \begin{tabular}{ r l }
+        {\large \bfseries Student}: & {Ngo Duc Huy}\\
+        {\large \bfseries Student ID}: & {21020046}\\
+        {\large \bfseries Class}:  & {QH-2021-I/CQ-I-CS2}\\
+        {\large \bfseries Supervisor}:  & {Dr. Ta Viet Cuong}\\  
+        \end{tabular}
+            
+        \vfill
+        \large
+        \textbf{HANOI - 2024}
+    \end{center}
+\end{titlepage}
+
+\pagenumbering{roman}
+\setcounter{page}{3}
+\changefontsizes[16pt]{14pt}
+
+%---------------------------------------------
+% Front Matter
+%---------------------------------------------
+% \include{FrontMatter/Declaration}
+% \include{FrontMatter/Approval}
+\include{FrontMatter/Acknowledgements}
+% \include{FrontMatter/Abstract_vn}
+\include{FrontMatter/Abstract}
+
+% Show ToC and change title to Table of Contents
+\setcounter{secnumdepth}{3}
+\renewcommand{\contentsname}{Table of Contents}
+\tableofcontents
+
+% Show Acronyms and add it to ToC
+% \printglossary[title={Acronyms},type=acronym,style=long]
+\clearpage
+
+% Show list of 
+\listoffigures
+\clearpage
+% \listoftables
+% \clearpage
+
+
+%--------------------------------------------- 
+% Main content
+%---------------------------------------------
+\pagenumbering{arabic}
+\setcounter{page}{1}
+\include{Chapter1/chapter1}
+\include{Chapter2/chapter2}
+\include{Chapter3/chapter3}
+\include{Chapter4/chapter4}
+\include{Chapter5/chapter5}
+% \include{Chapter6/chapter6}
+
+
+%--------------------------------------------- 
+% References
+%---------------------------------------------
+\bibliographystyle{IEEEtranSN}
+\renewcommand\bibname{References}
+\bibliography{references} % Path to your references.bib file
+
+%--------------------------------------------- 
+% Supervisor's comment
+%---------------------------------------------
+\begin{titlepage}
+    % Add university logo
+    \begin{center}
+        \includegraphics[width=0.2\textwidth]{FrontMatter/uet.png} \\ % Replace with actual logo file name
+        \vspace{0.5cm}
+    \end{center}
+    
+    % Add comment section
+    \noindent \textbf{ Supervisor's comment:}    
+    \noindent \Pointilles{12}
+    % Add mark section
+    \begin{center}
+        \textbf{Mark:} \underline{\hspace{2cm}} \hspace{1cm} \textbf{In words:} \underline{\hspace{5cm}}
+    \end{center}
+    
+    \noindent\begin{tabular}{@{}>{\centering}p{0.538\textwidth}>{\centering}p{0.538\textwidth}@{}}
+     & Hanoi, \underline{\hspace{1cm}}/\underline{\hspace{1cm}}/2024 \tabularnewline
+     & Supervisor \tabularnewline
+    & (Signature and full name) \tabularnewline
+    \end{tabular} 
+\end{titlepage}
+
+%--------------------------------------------- 
+% Appendix
+%---------------------------------------------
+% \appendix
+% \include{Appendix/appendix1}
+
+\end{document}

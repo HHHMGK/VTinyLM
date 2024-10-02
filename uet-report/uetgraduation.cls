@@ -94,53 +94,69 @@
 			($(current page.north west)+(2.65cm,-2.15cm)$) rectangle ($(current page.south east)-(1.65cm,-2.65cm)$);
 	}%
 }{\cleardoublepage\normalsize}
-\newcommand\makecovers{
+% \newcommand\makecovers{
+% 	\begin{coverpage}%
+% 		\centering%
+% 		\setfontsize{12pt}\textbf{ĐẠI HỌC QUỐC GIA HÀ NỘI}\par
+% 		\textbf{TRƯỜNG ĐẠI HỌC CÔNG NGHỆ}\par
+% 		% \vspace{2cm}\includegraphics[scale=0.6]{UET logo.pdf}\par
+% 		\vspace{2cm}\includegraphics[width=3cm,height=3cm,keepaspectratio]{UET logo colored.pdf}\par
+% 		\vspace{0.5cm}\setfontsize{14pt}\textbf{\@meta@studentname}\par
+% 		\vspace{1.5cm}\setfontsize{18pt}\textbf{\MakeUppercase{\@meta@title}}\par
+% 		\vspace{2cm}\setfontsize{14pt}\textbf{\MakeUppercase{\@meta@documenttype}}\par
+% 		\textbf{Ngành: \@meta@major}\par
+% 		\vfill\setfontsize{12pt}\textbf{HÀ NỘI -- \@meta@year}\par%
+% 	\end{coverpage}
+% 	\begin{coverpage}%
+% 		{
+% 			\centering%
+% 			\setfontsize{12pt}\textbf{ĐẠI HỌC QUỐC GIA HÀ NỘI}\par
+% 			\textbf{TRƯỜNG ĐẠI HỌC CÔNG NGHỆ}\par
+% 			\vspace{1.5cm}\setfontsize{14pt}\textbf{\@meta@studentname}\par
+% 			\vspace{1.5cm}\setfontsize{18pt}\textbf{\MakeUppercase{\@meta@title}}\par
+% 			\vspace{3cm}\setfontsize{14pt}\textbf{\MakeUppercase{\@meta@documenttype}}\par
+% 			\textbf{Ngành: \@meta@major}\par%
+% 		}
+% 		\vspace{2.5cm}\setfontsize{14pt}\textbf{Cán bộ hướng dẫn: \@meta@supervisor}\par%
+% 		\if@meta@hascosupervisor\vspace{3cm}\textbf{Cán bộ đồng hướng dẫn: \@meta@cosupervisor}\par\fi%
+% 		{
+% 			\centering\vfill\setfontsize{12pt}\textbf{HÀ NỘI -- \@meta@year}\par%
+% 		}
+% 	\end{coverpage}
+% 	\if@meta@hasenglishsections\begin{coverpage}%
+% 		{
+% 			\centering%
+% 			\setfontsize{12pt}\textbf{VIETNAM NATIONAL UNIVERSITY, HANOI}\par
+% 			\textbf{UNIVERSITY OF ENGINEERING AND TECHNOLOGY}\par
+% 			\vspace{1.5cm}\setfontsize{14pt}\textbf{\@meta@studentname}\par
+% 			\vspace{1.5cm}\setfontsize{18pt}\textbf{\MakeUppercase{\@meta@englishtitle}}\par
+% 			\vspace{3cm}\setfontsize{14pt}\textbf{Major: \@meta@englishmajor}\par
+% 		}
+% 		\vspace{3cm}\setfontsize{14pt}\textbf{Supervisor: \@meta@englishsupervisor}\par%
+% 		\if@meta@hascosupervisor\vspace{3cm}\textbf{Co-Supervisor: \@meta@englishcosupervisor}\par\fi%
+% 		{
+% 			\centering\vfill\setfontsize{12pt}\textbf{HÀ NỘI -- \@meta@year}\par%
+% 		}
+% 	\end{coverpage}\fi
+% }
+\newcommand\makeenglishcovers{
 	\begin{coverpage}%
 		\centering%
-		\setfontsize{12pt}\textbf{ĐẠI HỌC QUỐC GIA HÀ NỘI}\par
-		\textbf{TRƯỜNG ĐẠI HỌC CÔNG NGHỆ}\par
-		\vspace{2cm}\includegraphics[scale=0.6]{UET logo.pdf}\par
-		\vspace{0.5cm}\setfontsize{14pt}\textbf{\@meta@studentname}\par
+		\setfontsize{15pt}\textbf{VIETNAM NATIONAL UNIVERSITY, HANOI}\par
+		\textbf{UNIVERSITY OF ENGINEERING AND TECHNOLOGIES}\par
+		% \vspace{2cm}\includegraphics[scale=0.6]{UET logo.pdf}\par
+		\vspace{2cm}\includegraphics[width=4cm,height=4cm,keepaspectratio]{UET logo colored.pdf}\par
+		\vspace{0.5cm}\setfontsize{15pt}\textbf{\@meta@studentname}\par
 		\vspace{1.5cm}\setfontsize{18pt}\textbf{\MakeUppercase{\@meta@title}}\par
-		\vspace{2cm}\setfontsize{14pt}\textbf{\MakeUppercase{\@meta@documenttype}}\par
-		\textbf{Ngành: \@meta@major}\par
-		\vfill\setfontsize{12pt}\textbf{HÀ NỘI -- \@meta@year}\par%
+		\vspace{2cm}\setfontsize{15pt}\textbf{\MakeUppercase{\@meta@documenttype}}\par
+		\textbf{Major: \@meta@major}\par
+		\vspace{3cm}\setfontsize{15pt}\textbf{Supervisor: \@meta@supervisor}\par%
+		\vfill\setfontsize{15pt}\textbf{HANOI -- \@meta@year}\par%
 	\end{coverpage}
-	\begin{coverpage}%
-		{
-			\centering%
-			\setfontsize{12pt}\textbf{ĐẠI HỌC QUỐC GIA HÀ NỘI}\par
-			\textbf{TRƯỜNG ĐẠI HỌC CÔNG NGHỆ}\par
-			\vspace{1.5cm}\setfontsize{14pt}\textbf{\@meta@studentname}\par
-			\vspace{1.5cm}\setfontsize{18pt}\textbf{\MakeUppercase{\@meta@title}}\par
-			\vspace{3cm}\setfontsize{14pt}\textbf{\MakeUppercase{\@meta@documenttype}}\par
-			\textbf{Ngành: \@meta@major}\par%
-		}
-		\vspace{2.5cm}\setfontsize{14pt}\textbf{Cán bộ hướng dẫn: \@meta@supervisor}\par%
-		\if@meta@hascosupervisor\vspace{3cm}\textbf{Cán bộ đồng hướng dẫn: \@meta@cosupervisor}\par\fi%
-		{
-			\centering\vfill\setfontsize{12pt}\textbf{HÀ NỘI -- \@meta@year}\par%
-		}
-	\end{coverpage}
-	\if@meta@hasenglishsections\begin{coverpage}%
-		{
-			\centering%
-			\setfontsize{12pt}\textbf{VIETNAM NATIONAL UNIVERSITY, HANOI}\par
-			\textbf{UNIVERSITY OF ENGINEERING AND TECHNOLOGY}\par
-			\vspace{1.5cm}\setfontsize{14pt}\textbf{\@meta@studentname}\par
-			\vspace{1.5cm}\setfontsize{18pt}\textbf{\MakeUppercase{\@meta@englishtitle}}\par
-			\vspace{3cm}\setfontsize{14pt}\textbf{Major: \@meta@englishmajor}\par
-		}
-		\vspace{3cm}\setfontsize{14pt}\textbf{Supervisor: \@meta@englishsupervisor}\par%
-		\if@meta@hascosupervisor\vspace{3cm}\textbf{Co-Supervisor: \@meta@englishcosupervisor}\par\fi%
-		{
-			\centering\vfill\setfontsize{12pt}\textbf{HÀ NỘI -- \@meta@year}\par%
-		}
-	\end{coverpage}\fi
 }
 
 \newenvironment{preamble}[1]{%
-	\clearpage\setlength\parindent{0cm}{\centering\textbf{\MakeUppercase{#1}}\par}\vspace{1cm}\setfontsize{12pt}
+	\clearpage\setlength\parindent{0cm}{\centering\textbf{\MakeUppercase{#1}}\par}\vspace{1cm}\setfontsize{14pt}
 }{\normalsize}
 
 \newif\if@incontentlisting\@incontentlistingfalse
@@ -176,8 +192,8 @@
 \renewcommand\thesubsection{\thesection.\@arabic\c@subsection}
 \newcommand\chapter[1]{%
 	\cleardoublepage\refstepcounter{chapter}\ifnum\c@chapter=1\pagestyle{plain}\setcounter{page}{1}\fi
-	\addcontentsline{toc}{chapter}{\protect\numberline{Chương \thechapter.}{#1}}
-	\noindent\large\textbf{Chương \thechapter.}\par
+	\addcontentsline{toc}{chapter}{\protect\numberline{Chapter \thechapter.}{#1}}
+	\noindent\large\textbf{Chapter \thechapter.}\par
 	\noindent\huge#1\par\vspace{1cm}\normalsize%
 }
 \newcommand\section[1]{%

@@ -1,0 +1,9 @@
+\chapter{Experiments and Results}
+The experiments are conducted first by using the original PhoGPT-4B-Chat model as the baseline model. With 24 Transformer blocks or layers, each with 24 attention heads, the model results in roughly 3.7B parameters.  \par
+The model is then modified in multiple ways to reduce the model size by removing different numbers and positions of layers from the model. We had experimented with removing 1, 2, 4, 8 layers consecutively, each time removing the layers beginning from the first layer to the last layer possible of the model. The modified model are then evaluated using the perplexity metric on the test prompt dataset. The average perplexity is calculated as metrics to evaluate the performance of the model. \par
+The experiments are conducted on a single NVIDIA RTX 3090Ti GPU with 24GB of VRAM, given the following results:
+
+<TABLE here>
+
+As can be seen from the table, the baseline model PhoGPT-4B-Chat has a perplexity of ... on the test dataset. When removing 1 layer from the model, the perplexity increases to ... as average, to ... when removing the critical layers .... The results pattern continues as more layers are removed from the model. The perplexity increases as the number of layers removed increases, the first and last layers have much more significant impact on the model's performance compared to the middle layers. \par
+The runtime or inference speed of the model is also measured during the experiments. The runtime of the model is measured by calculating the average time taken to generate the output sequences for the test dataset. As the model size decreases, the runtime of the model also decreases. The runtime of the model is inversely proportional to the model size, as the trade-off between model size or performance and inference speed is a common problem in the battlefield of LLMs. \par
