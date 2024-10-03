@@ -9,12 +9,12 @@ Since the blocks are placed consecutively in the model, i.e., the output of the 
 The performance of the modified model is evaluated using the perplexity metric. Perplexity is a common metric used to evaluate the performance of a language model. It is calculated as the exponential of the cross-entropy loss of the model on the test dataset. The lower the perplexity, the better the model's performance. \par
 The perplexity is calculated as follows:
 
-\begin{equation*}
-    \text{Perplexity} = \exp\left(\frac{1}{N}\sum_{i=1}^{N} -\log P(x_i)\right)
-\end{equation*}
-\begin{center}
-    where $N$ is the number of tokens in the test, and $P(x_i)$ is the probability of the $i$-th token in the test dataset.
-\end{center}
+\begin{equation}
+    \text{Perplexity} = \exp\left(-\frac{1}{N}\sum_{i=1}^N \log p(x_i|x_{<i})\right)
+\end{equation}
+\begin{align*}
+    \text{where } &N \text{ is the number of tokens in the sequence} \\
+    &p(x_i|x_{1:i-1}) \text{ is the probability of the i-th token } x_i \text{ given the preceding tokens } x_{1:i-1}
+\end{align*}
 
 The performance of the model is evaluated by measuring the perplexity of the model on the test dataset consisting of input prompts sequences. The process is done by feeding the input sequences to the model and calculating the perplexity of the model on the output sequences. Then the perplexity is averaged over the whole test dataset to get the final perplexity score of the model. \par
- 

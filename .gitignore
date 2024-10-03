@@ -1,6 +1,7 @@
 # latex aux files
 *.acn
 *.aux
+*.auxlock
 *.fdb_latexmk
 *.fls
 *.log
@@ -16,6 +17,9 @@
 *.ntn
 *.toc
 *.pdfsync
+*.dpth
+*.md5
+
 
 sandbox.py
 uet-report

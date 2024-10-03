@@ -61,6 +61,12 @@
 % Change enumerate label
 \usepackage{enumitem}
 
+% Ploting
+\usepackage{pgfplots}
+\pgfplotsset{width=10cm,compat=1.9}
+\usepgfplotslibrary{external}
+\tikzexternalize
+
 % Page numbering at the center top of page
 % \usepackage{fancyhdr} % Custom headers and footers
 % \pagestyle{fancyplain} % Makes all pages in the document conform to the custom headers and footers
@@ -86,7 +92,9 @@
 \usepackage{pdfpages}
 
 % Subfigure
-\usepackage{caption}
+\usepackage[justification=centering, 
+            textfont=it, 
+            labelfont={it,bf}]{caption}
 \usepackage{subcaption}
 
 % pstricks fig
@@ -94,6 +102,7 @@
 
 % Table of Contents
 \usepackage[hidelinks]{hyperref}
+
 % Uncomment if you want leading dot for chapter
 \usepackage{tocloft}
 \renewcommand{\cftpartleader}{\cftdotfill{\cftdotsep}} % for parts
@@ -115,99 +124,10 @@
 \newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 \newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 
-\title{Summer Internship Report}
-\author{Ngo Duc Huy}
-\date{September 2024}
-
-\begin{document}
-\begin{titlepage}
-    \begin{tikzpicture}[overlay,remember picture]
-        \draw [line width=3pt]
-            ($ (current page.north west) + (2.0cm,-2.0cm) $)
-            rectangle
-            ($ (current page.south east) + (-1.5cm,1.8cm) $);
-        \draw [line width=1pt]
-            ($ (current page.north west) + (2.15cm,-2.15cm) $)
-            rectangle
-            ($ (current page.south east) + (-1.65cm,1.95cm) $); 
-    \end{tikzpicture}
-    
-    \begin{center}
-        % \vspace*{1cm}
-        \large
-        \textbf{VIETNAM NATIONAL UNIVERSITY, HANOI \\
-        UNIVERSITY OF ENGINEERING AND TECHNOLOGY}
-
-        \vspace{1.5cm}
-        \includegraphics[width=0.3\textwidth]{FrontMatter/uet.png}
-            
-        \vspace{0.5cm}
-        \large
-        \textbf{NGO DUC HUY}
-        
-        \vspace{1.5cm}
-        \large
-        \textbf{TITLE}
-            
-        \vspace{2.5cm}
-        \large
-        \textbf{SUMMER INTERNSHIP REPORT \\
-        Major}: Computer Science       
-
-        \vspace{1cm}
-        \textbf{Supervisor: Dr. Ta Viet Cuong} 
-        
-        \vfill
-        \large
-        \textbf{HANOI - 2024}
-    \end{center}
-\end{titlepage}
-
-\begin{titlepage}
-    \begin{tikzpicture}[overlay,remember picture]
-        \draw [line width=3pt]
-            ($ (current page.north west) + (2.0cm,-2.0cm) $)
-            rectangle
-            ($ (current page.south east) + (-1.5cm,1.8cm) $);
-        \draw [line width=1pt]
-            ($ (current page.north west) + (2.15cm,-2.15cm) $)
-            rectangle
-            ($ (current page.south east) + (-1.65cm,1.95cm) $); 
-    \end{tikzpicture}
-    
-    \begin{center}
-        % \vspace*{1cm}
-        \large
-        \textbf{VIETNAM NATIONAL UNIVERSITY, HANOI \\
-        UNIVERSITY OF ENGINEERING AND TECHNOLOGY}
-
-        \vspace{3cm}
-        \large
-        \textbf{INTERNSHIP REPORT}
-            
-        \vspace{1.5cm}
-        
-        \textbf{TITLE}
-            
-        \vspace{2.5cm}
-        \large
-        % \textbf{BACHELOR THESIS \\
-        % Major}: Computer Science       
-
-        % \vspace{1cm}
-        % \textbf{Supervisor: Dr. Ta Viet Cuong}   
-        \begin{tabular}{ r l }
-        {\large \bfseries Student}: & {Ngo Duc Huy}\\
-        {\large \bfseries Student ID}: & {21020046}\\
-        {\large \bfseries Class}:  & {QH-2021-I/CQ-I-CS2}\\
-        {\large \bfseries Supervisor}:  & {Dr. Ta Viet Cuong}\\  
-        \end{tabular}
-            
-        \vfill
-        \large
-        \textbf{HANOI - 2024}
-    \end{center}
-\end{titlepage}
+%---------------------------------------------
+% Cover
+%---------------------------------------------
+\include{FrontMatter/Cover}
 
 \pagenumbering{roman}
 \setcounter{page}{3}
@@ -234,8 +154,8 @@
 % Show list of 
 \listoffigures
 \clearpage
-% \listoftables
-% \clearpage
+\listoftables
+\clearpage
 
 
 %--------------------------------------------- 
