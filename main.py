@@ -15,6 +15,7 @@ parser.add_argument('--config', type=str, default='config.json', help='Path to c
 parser.add_argument('--base_model', type=str, default='', help='Base model name')
 parser.add_argument('--output', type=str, default='results.csv', help='Output file for results')
 parser.add_argument('--measure_time', type=bool, default=False, help='Measure run time or not')
+parser.add_argument('--output_console', type=bool, default=False, help='Print output to console or not')
 # parser.add_argument('--run_dummy', type=bool, default=False, help='Run dummy mode (system testing) or not')
 
 # For TRAINing mode
@@ -89,6 +90,11 @@ if args.run_mode == 'eval':
         csv_writer.writeheader()
         csv_writer.writerows(results)
 
+    if args.output_console:
+        print('Results:')
+        with open(args.output,'r') as f:
+            print(f.read())
+        
 
 if args.run_mode == 'infer':
     print('Infering')
