@@ -14,6 +14,7 @@ parser.add_argument('--config', type=str, default='config.json', help='Path to c
 # Common arguments
 parser.add_argument('--base_model', type=str, default='', help='Base model name')
 parser.add_argument('--output', type=str, default='results.csv', help='Output file for results')
+parser.add_argument('--instructive_prompt', type=str, default=False, help='Adding instructive prompt when evaluating')
 parser.add_argument('--measure_time', type=bool, default=False, help='Measure run time or not')
 parser.add_argument('--output_console', type=bool, default=False, help='Print output to console or not')
 # parser.add_argument('--run_dummy', type=bool, default=False, help='Run dummy mode (system testing) or not')
@@ -56,7 +57,7 @@ if args.run_mode == 'eval':
 
         if args.eval_base:
             print('Evaluating base model')
-            eval_results = eval_perplexity(base_model, tokenizer, device, lang=lang, repeat=args.repeat, measure_time=args.measure_time)
+            eval_results = eval_perplexity(base_model, tokenizer, device, lang=lang, instructive=args.instructive_prompt,repeat=args.repeat, measure_time=args.measure_time)
             print('Perplexity:', eval_results['perplexity'])
             # _perplexity = f'{round(eval_results["perplexity"][0],3)} 0xC2 {round(round(eval_results["perplexity"][1],3))}'
             # _time = f'{round(eval_results["time"][0],3)} 0xC2 {round(round(eval_results["time"][1],3))}' if args.measure_time else None
@@ -71,7 +72,7 @@ if args.run_mode == 'eval':
                 if model is None:
                     break
                 print(f'Evaluating model with layers from {layer_start} to {layer_end} removed')
-                eval_results = eval_perplexity(model, tokenizer, device, lang=lang, repeat=args.repeat, measure_time=args.measure_time)
+                eval_results = eval_perplexity(model, tokenizer, device, lang=lang, instructive=args.instructive_prompt,repeat=args.repeat, measure_time=args.measure_time)
                 print('Perplexity:', eval_results['perplexity'])
                 results.append({'Modification':f'Removed {layer_start} to {layer_end}', 
                             'Perplexity_mean':eval_results['perplexity'][0], 'Perplexity_stddev':eval_results['perplexity'][1], 
