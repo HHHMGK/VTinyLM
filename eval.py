@@ -16,11 +16,17 @@ with open('benchmarks.json','r') as f:
 #     model.to('cpu')
 #     torch.cuda.empty_cache()
     
-def eval_perplexity(model, tokenizer, device, lang='vn', repeat=1, measure_time=False):
+def eval_perplexity(model, tokenizer, device, lang='vn', additional_input=False ,repeat=1, measure_time=False):
     perplexity = Perplexity()
 
     prompts = BENCHMARKS["perplexity"]["data"][lang]
-
+    if additional_input:
+        if lang=='vn':
+            additional_prompt = 'Viết một đoạn văn nghị luận về vấn đề sau: '
+        elif lang=='en':
+            additional_prompt = 'Write an argumentative essay about the following topic: '
+        prompts = [additional_prompt + prompt for prompt in prompts]
+        
     model = model.to('cuda')
     model.eval()
     perplexity_score = []
