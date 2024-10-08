@@ -51,11 +51,12 @@ if args.run_mode == 'eval':
     tokenizer = load_tokenizer(args.base_model)
     print('Model loaded')
     results = []
-    if args.benchmark == 'perplexity-vn':
+    if args.benchmark.startswith('perplexity'):
+        lang = args.benchmark.split('-')[1] # 'vn' or 'en'
 
         if args.eval_base:
             print('Evaluating base model')
-            eval_results = eval_perplexity(base_model, tokenizer, device, lang='vn', repeat=args.repeat, measure_time=args.measure_time)
+            eval_results = eval_perplexity(base_model, tokenizer, device, lang=lang, repeat=args.repeat, measure_time=args.measure_time)
             print('Perplexity:', eval_results['perplexity'])
             # _perplexity = f'{round(eval_results["perplexity"][0],3)} 0xC2 {round(round(eval_results["perplexity"][1],3))}'
             # _time = f'{round(eval_results["time"][0],3)} 0xC2 {round(round(eval_results["time"][1],3))}' if args.measure_time else None
@@ -70,7 +71,7 @@ if args.run_mode == 'eval':
                 if model is None:
                     break
                 print(f'Evaluating model with layers from {layer_start} to {layer_end} removed')
-                eval_results = eval_perplexity(model, tokenizer, device, lang='vn', repeat=args.repeat, measure_time=args.measure_time)
+                eval_results = eval_perplexity(model, tokenizer, device, lang=lang, repeat=args.repeat, measure_time=args.measure_time)
                 print('Perplexity:', eval_results['perplexity'])
                 results.append({'Modification':f'Removed {layer_start} to {layer_end}', 
                             'Perplexity_mean':eval_results['perplexity'][0], 'Perplexity_stddev':eval_results['perplexity'][1], 
