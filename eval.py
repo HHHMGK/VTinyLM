@@ -17,6 +17,17 @@ with open('benchmarks.json','r') as f:
 #     torch.cuda.empty_cache()
     
 def eval_perplexity(model, tokenizer, device, lang='vn', instructive=False ,repeat=1, measure_time=False):
+    """
+    Evaluate the perplexity of a model on a given language benchmark.
+    Args:
+        model: The model to evaluate.
+        tokenizer: The tokenizer to use.
+        device: The device to run the model on.
+        lang: The language benchmark to evaluate on, 'vn' or 'en'.
+        instructive: Whether to add an instructive prompt before the benchmark.
+        repeat: Number of times to repeat the evaluation.
+        measure_time: Whether to measure the time taken for each evaluation.
+    """
     perplexity = Perplexity()
 
     prompts = BENCHMARKS["perplexity"]["data"][lang]

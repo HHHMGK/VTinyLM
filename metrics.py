@@ -7,9 +7,11 @@ import numpy as np
 from torch.nn import CrossEntropyLoss
 import torch
 
-# Custom perplexity metric from Huggingface evaluate module
-# Changed the implementation of _compute for custom model and tokenizer
 class Perplexity(evaluate.Metric):
+    """
+    Custom perplexity metric from Huggingface evaluate module
+    Changed the implementation of _compute for custom model and tokenizer
+    """
     def _info(self):
         return evaluate.MetricInfo(
             module_type="metric",
