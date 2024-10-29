@@ -37,7 +37,7 @@ def process_hf_dataset(dataset, tokenizer):
     # dataset.set_format(type='torch', columns=['input_ids', 'attention_mask', 'label'])    
     return dataset
 
-def train_with_hf_dataset(model, tokenizer, file_path, device, technique = 'full'):
+def train_with_hf_dataset(model, tokenizer, file_path, device, precision ='fp16', technique = 'full'):
     if file_path is not None:
         file_path = str(Path(file_path).absolute())
     dataset = process_hf_dataset(get_hf_dataset(file_path), tokenizer)
@@ -62,7 +62,7 @@ def train_with_hf_dataset(model, tokenizer, file_path, device, technique = 'full
             learning_rate=2e-4,
             lr_scheduler_type='cosine',
             report_to='none',
-            fp16=True,
+            fp16=(precision=='fp16'),
         )
 
         trainer = Trainer(

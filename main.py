@@ -26,6 +26,7 @@ parser.add_argument('--pruning', action=argparse.BooleanOptionalAction, help='Pr
 parser.add_argument('--pruning_layer_start', type=int, default=0, help='Pruning start layer')
 parser.add_argument('--pruning_layer_end', type=int, default=0, help='Pruning end layer')
 parser.add_argument('--dataset_path', type=str, default='', help='Path to dataset file')
+parser.add_argument('--precision', type=str, default='fp16', choices=['fp16','fp32'], help='Precision mode')
 parser.add_argument('--eval_after_train', action=argparse.BooleanOptionalAction, help='Evaluate after training or not')
 
 # For EVALuating mode
