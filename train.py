@@ -52,7 +52,8 @@ def train_with_hf_dataset(model, tokenizer, file_path, file_type, device, techni
             adam_beta1=0.9,
             adam_beta2=0.95,
             learning_rate=2e-4,
-            lr_scheduler_type='cosine'
+            lr_scheduler_type='cosine',
+            report_to='none',
         )
 
         trainer = Trainer(
