@@ -5,3 +5,4 @@ einops
 torchviz
 evaluate
 trl
+peft

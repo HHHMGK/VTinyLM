@@ -4,6 +4,7 @@ from pathlib import Path
 from datasets import load_dataset, Dataset
 from transformers import Trainer, TrainingArguments, DataCollatorForLanguageModeling
 from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
+from peft import LoraConfig, prepare_model_for_kbit_training, get_peft_model
 import pandas as pd
 
 # DATASETS_INFO_PATH = Path(__file__).parent / 'datasets' / 'datasets_info.json'
@@ -47,24 +48,37 @@ def format_instruction(sample):
     formatted = []
     for i in range(len(sample['content'])):
         formatted.append(f"""### Câu hỏi: 
-                            Hoàn thiện bài báo về {sample['title'][i]} thuộc thể loại {sample['category'][i]}\n
-                            ### Trả lời:
+                            Hoàn thiện bài báo về {sample['title'][i]} thuộc thể loại {sample['category'][i]}
+                            \n### Trả lời:
                             {sample['content'][i]}
                             """)
-    return formatted
+    return formatted    
 
-RESPON_TEMPLATE = "### Trả lời:"
+RESPON_TEMPLATE = "\n### Trả lời:"
 
-def train_with_hf_dataset(model, tokenizer, file_path, device, precision ='fp16', max_seq_length =2048, technique = 'full'):
+def train_with_hf_dataset(model, tokenizer, file_path, device, precision ='fp16', max_seq_length =2048, technique = 'lora'):
     if file_path is not None:
         file_path = str(Path(file_path).absolute())
     # dataset = process_hf_dataset(get_hf_dataset(file_path), tokenizer)
     dataset = get_hf_dataset(file_path)
-    datacollator = DataCollatorForCompletionOnlyLM(response_template=RESPON_TEMPLATE, tokenizer=tokenizer)  
-    if technique == 'full':
+    datacollator = DataCollatorForCompletionOnlyLM(
+        response_template=RESPON_TEMPLATE, 
+        tokenizer=tokenizer
+    )  
+    if technique == 'lora':
         # dataset = dataset.train_test_split(test_size=0.1)
         print(dataset)
         model.resize_token_embeddings(len(tokenizer))
+
+        peft_cfg = LoraConfig(
+            lora_alpha=16,
+            lora_dropout=0.1,
+            r=64,
+            bias="none",
+            task_type="CAUSAL_LM",
+        )
+        model = prepare_model_for_kbit_training(model)
+        model = get_peft_model(model, peft_cfg)
         
         training_args = TrainingArguments(
             output_dir='./train_results',
@@ -84,21 +98,14 @@ def train_with_hf_dataset(model, tokenizer, file_path, device, precision ='fp16'
             fp16=(precision=='fp16'),
         )
 
-        # trainer = Trainer(
-        #     model=model,
-        #     args=training_args,
-        #     train_dataset=dataset['train'],
-        #     eval_dataset=dataset['test'],
-        #     data_collator=datacollator
-        # )
         trainer = SFTTrainer(
             model=model,
             args=training_args,
+            peft_config=peft_cfg,
             train_dataset=dataset,
             data_collator=datacollator,
             max_seq_length=max_seq_length,
             tokenizer=tokenizer,
-            # packing=True,
             formatting_func=format_instruction,
         )
         trainer.train()

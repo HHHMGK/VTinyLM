@@ -62,7 +62,7 @@ if args.run_mode == 'train':
         base_model = layer_removal(base_model, args.pruning_layer_start, args.pruning_layer_end)
         print('Model pruned')
     print('Training model')
-    train_with_hf_dataset(base_model, tokenizer, args.dataset_path, device, technique='full')
+    train_with_hf_dataset(base_model, tokenizer, args.dataset_path, device, technique='lora')
 
     if args.eval_after_train:
         print('Evaluating model')
