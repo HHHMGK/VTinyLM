@@ -16,23 +16,23 @@ parser.add_argument('--config', type=str, default='config.json', help='Path to c
 parser.add_argument('--base_model', type=str, default='', help='Base model name')
 parser.add_argument('--output', type=str, default='results.csv', help='Output file for results')
 parser.add_argument('--instructive_prompt', type=str, default=False, help='Adding instructive prompt when evaluating')
-parser.add_argument('--measure_time', type=bool, default=False, help='Measure run time or not')
-parser.add_argument('--output_console', type=bool, default=False, help='Print output to console or not')
+parser.add_argument('--measure_time', action=argparse.BooleanOptionalAction, help='Measure run time or not')
+parser.add_argument('--output_console', action=argparse.BooleanOptionalAction, help='Print output to console or not')
 # parser.add_argument('--run_dummy', type=bool, default=False, help='Run dummy mode (system testing) or not')
 
 # For TRAINing mode
 parser.add_argument('--model_path', type=str, default='', help='Path to model file')
-parser.add_argument('--pruning', type=bool, default=False, help='Pruning model or not')
+parser.add_argument('--pruning', action=argparse.BooleanOptionalAction, help='Pruning model or not')
 parser.add_argument('--pruning_layer_start', type=int, default=0, help='Pruning start layer')
 parser.add_argument('--pruning_layer_end', type=int, default=0, help='Pruning end layer')
 parser.add_argument('--dataset_path', type=str, default='', help='Path to dataset file')
-parser.add_argument('--eval_after_train', type=bool, default=False, help='Evaluate after training or not')
+parser.add_argument('--eval_after_train', action=argparse.BooleanOptionalAction, help='Evaluate after training or not')
 
 # For EVALuating mode
 parser.add_argument('--benchmark', type=str, default='perplexity-vn', choices=['perplexity-vn','perplexity-en','villm-eval'], help='Benchmark to evaluate')
 parser.add_argument('--repeat', type=int, default=1, help='Number of evaluation to repeat')
 parser.add_argument('--modification', type=str, default='layer_reduction', choices=['layer_reduction','base'], help='Model modification method')
-parser.add_argument('--eval_base', type=bool, default=True, help='Evaluate base model or not')
+parser.add_argument('--eval_base', action=argparse.BooleanOptionalAction, help='Evaluate base model or not')
 parser.add_argument('--layer_step', type=int, default=0, help='Step for layer modification')
 
 # For INFERing mode
@@ -43,17 +43,19 @@ parser.add_argument('--file', type=str, default='', help='Input file for inferen
 args = parser.parse_args()
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print('Device using:', device)
 
 if args.measure_time:
     start_time = time.time()
 
 if args.run_mode == 'train':
-    print('Training')
     # print('Config path:', args.config)
     print('Loading as base model:', args.base_model)
-    base_model = load_model(args.base_model)
+    # base_model = load_model(args.base_model)
     tokenizer = load_tokenizer(args.base_model)
-    print('Model loaded')
+    base_model = None
+    print('Model and Tokenizer loaded')
+    print(args.pruning)
     if args.pruning:
         print('Pruning model')
         base_model = layer_removal(base_model, args.pruning_layer_start, args.pruning_layer_end)

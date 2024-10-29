@@ -1,20 +1,12 @@
+from pathlib import Path
 import copy, json, time
 import torch
 import numpy as np
 from metrics import Perplexity
 
-with open('benchmarks.json','r') as f:
+BENCHMARK_PATH = str(Path('benchmarks.json').absolute())
+with open(BENCHMARK_PATH,'r',encoding='utf-8') as f:
     BENCHMARKS = json.load(f)
-
-
-# def evaluate(model, tokenizer, benchmark, device):
-#     model = model.to('cuda')
-#     model.eval()
-
-
-
-#     model.to('cpu')
-#     torch.cuda.empty_cache()
     
 def eval_perplexity(model, tokenizer, device, lang='vn', instructive=False ,repeat=1, measure_time=False):
     """

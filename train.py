@@ -11,7 +11,7 @@ with open(DATASETS_INFO_PATH, 'r') as f:
 
 def dataset_columns_mapping(dataset, dataset_name = 'vneconomy'):
     columns_mapping = DATASETS_INFO[dataset_name]
-    for key in columns_mapping.key():
+    for key in columns_mapping.keys():
         dataset = dataset.rename_column(key,columns_mapping[key])
     return dataset
 
@@ -27,7 +27,7 @@ def process_hf_dataset(dataset, tokenizer):
     dataset = dataset_columns_mapping(dataset)
     dataset = dataset.map(lambda e: tokenizer(e['text'], truncation=True, padding='max_length'),
                             batched=True)
-    dataset.set_format(type='torch', columns=['input_ids', 'attention_mask', 'label'])    
+    # dataset.set_format(type='torch', columns=['input_ids', 'attention_mask', 'label'])    
     return dataset
 
 def train_with_hf_dataset(model, tokenizer, file_path, file_type, device, technique = 'full'):
