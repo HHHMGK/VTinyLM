@@ -25,6 +25,7 @@ parser.add_argument('--model_path', type=str, default='', help='Path to model fi
 parser.add_argument('--pruning', type=bool, default=False, help='Pruning model or not')
 parser.add_argument('--pruning_layer_start', type=int, default=0, help='Pruning start layer')
 parser.add_argument('--pruning_layer_end', type=int, default=0, help='Pruning end layer')
+parser.add_argument('--dataset_path', type=str, default='', help='Path to dataset file')
 parser.add_argument('--eval_after_train', type=bool, default=False, help='Evaluate after training or not')
 
 # For EVALuating mode
@@ -58,7 +59,7 @@ if args.run_mode == 'train':
         base_model = layer_removal(base_model, args.pruning_layer_start, args.pruning_layer_end)
         print('Model pruned')
     print('Training model')
-    train_with_hf_dataset(base_model, tokenizer, args.model_path, 'json', device, technique='full')
+    train_with_hf_dataset(base_model, tokenizer, args.dataset_path, 'json', device, technique='full')
 
     if args.eval_after_train:
         print('Evaluating model')

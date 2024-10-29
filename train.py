@@ -3,7 +3,7 @@ import json
 from datasets import load_dataset
 from transformers import Trainer, TrainingArguments, DataCollatorForLanguageModeling
 
-with open('datasets\datasets_info.json','r') as f:
+with open('.\datasets\datasets_info.json','r') as f:
     DATASETS_INFO = json.load(f)
 
 def dataset_columns_mapping(dataset, dataset_name = 'vneconomy'):
