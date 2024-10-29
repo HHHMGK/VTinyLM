@@ -18,10 +18,10 @@ def dataset_columns_mapping(dataset, dataset_name = 'vneconomy'):
 def get_hf_dataset(file_path = None, file_type = 'json'):
     if file_path is None or not os.path.exists(file_path):
         print('File',file_path,'not found. Loading dummy instead.')
-        return load_dataset('dummy.csv')
+        return load_dataset('csv', data_files='dummy.csv')
     else:
         print('Loading dataset from',file_path)
-        return load_dataset(file_path)
+        return load_dataset(file_type, data_files=file_path)
     
 def process_hf_dataset(dataset, tokenizer):
     dataset = dataset_columns_mapping(dataset)
