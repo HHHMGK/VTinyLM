@@ -51,7 +51,7 @@ def train_with_hf_dataset(model, tokenizer, file_path, device, precision ='fp16'
         file_path = str(Path(file_path).absolute())
     # dataset = process_hf_dataset(get_hf_dataset(file_path), tokenizer)
     dataset = get_hf_dataset(file_path)
-    datacollator = DataCollatorForCompletionOnlyLM(respon_template=RESPON_TEMPLATE, tokenizer=tokenizer)  
+    datacollator = DataCollatorForCompletionOnlyLM(response_template=RESPON_TEMPLATE, tokenizer=tokenizer)  
     if technique == 'full':
         dataset = dataset.train_test_split(test_size=0.1)
         print(dataset)
