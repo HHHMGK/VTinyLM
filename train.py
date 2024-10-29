@@ -39,11 +39,20 @@ def get_hf_dataset(file_path = None):
 #     return dataset
 
 def format_instruction(sample):
-    return  f"""### Câu hỏi: 
-                Hoàn thiện bài báo về {sample['title']} thuộc thể loại {sample['category']}\n
-                ### Trả lời:
-                {sample['content']}
-                """
+    # return  f"""### Câu hỏi: 
+    #             Hoàn thiện bài báo về {sample['title']} thuộc thể loại {sample['category']}\n
+    #             ### Trả lời:
+    #             {sample['content']}
+    #             """
+    formatted = []
+    for i in range(len(sample['content'])):
+        formatted.append(f"""### Câu hỏi: 
+                            Hoàn thiện bài báo về {sample['title'][i]} thuộc thể loại {sample['category'][i]}\n
+                            ### Trả lời:
+                            {sample['content'][i]}
+                            """)
+    return formatted
+
 RESPON_TEMPLATE = "### Trả lời:"
 
 def train_with_hf_dataset(model, tokenizer, file_path, device, precision ='fp16', max_seq_length =2048, technique = 'full'):
