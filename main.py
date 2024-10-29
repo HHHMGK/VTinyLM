@@ -1,9 +1,10 @@
 import argparse
 import os, gc, time
-from model import load_model, load_tokenizer, layer_reduction
-from eval import eval_perplexity
 import torch
 import json, csv
+from train import train_with_hf_dataset
+from model import load_model, load_tokenizer, layer_reduction_model_generator, layer_removal
+from eval import eval_perplexity
 
 # Take arg from command line
 parser = argparse.ArgumentParser(description='')
@@ -20,6 +21,11 @@ parser.add_argument('--output_console', type=bool, default=False, help='Print ou
 # parser.add_argument('--run_dummy', type=bool, default=False, help='Run dummy mode (system testing) or not')
 
 # For TRAINing mode
+parser.add_argument('--model_path', type=str, default='', help='Path to model file')
+parser.add_argument('--pruning', type=bool, default=False, help='Pruning model or not')
+parser.add_argument('--pruning_layer_start', type=int, default=0, help='Pruning start layer')
+parser.add_argument('--pruning_layer_end', type=int, default=0, help='Pruning end layer')
+parser.add_argument('--eval_after_train', type=bool, default=False, help='Evaluate after training or not')
 
 # For EVALuating mode
 parser.add_argument('--benchmark', type=str, default='perplexity-vn', choices=['perplexity-vn','perplexity-en','villm-eval'], help='Benchmark to evaluate')
@@ -42,12 +48,28 @@ if args.measure_time:
 
 if args.run_mode == 'train':
     print('Training')
-    print('Config path:', args.config)
+    # print('Config path:', args.config)
+    print('Loading as base model:', args.base_model)
+    base_model = load_model(args.base_model)
+    tokenizer = load_tokenizer(args.base_model)
+    print('Model loaded')
+    if args.pruning:
+        print('Pruning model')
+        base_model = layer_removal(base_model, args.pruning_layer_start, args.pruning_layer_end)
+        print('Model pruned')
+    print('Training model')
+    train_with_hf_dataset(base_model, tokenizer, args.model_path, 'json', device, technique='full')
+
+    if args.eval_after_train:
+        print('Evaluating model')
+        eval_results = eval_perplexity(base_model, tokenizer, device, lang='vn', instructive=args.instructive_prompt,repeat=args.repeat, measure_time=args.measure_time)
+        print('Perplexity:', eval_results['perplexity'])
+        print('Time:', eval_results['time'])
     
 if args.run_mode == 'eval':
     print('Evaluating with benchmark:', args.benchmark)
     
-    print('Loading as base model:', args.base_model)
+    print('Loading base model:', args.base_model)
     base_model = load_model(args.base_model)
     tokenizer = load_tokenizer(args.base_model)
     print('Model loaded')
@@ -66,7 +88,7 @@ if args.run_mode == 'eval':
                             'Time_mean':eval_results['time'][0], 'Time_stddev':eval_results['time'][1]})
             
         if args.modification == 'layer_reduction':
-            new_model_generator = layer_reduction(base_model, num_layers = None, step=args.layer_step)
+            new_model_generator = layer_reduction_model_generator(base_model, num_layers = None, step=args.layer_step)
             while True:
                 model, layer_start, layer_end = next(new_model_generator, (None, None, None))
                 if model is None:
@@ -106,7 +128,7 @@ if args.run_mode == 'infer':
         input.append(args.prompt)
 
     if args.file:
-        with open(args.file,'r') as f:
+        with open(args.file,'r') as     f:
             input.extend(f.readlines())
     
     model = load_model(args.base_model)

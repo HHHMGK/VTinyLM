@@ -12,7 +12,11 @@ def load_tokenizer(model_name):
 def clone_model(model):
     return copy.deepcopy(model)
 
-def layer_reduction(model, num_layers = None, step = None):
+def layer_removal(model, start_layer, end_layer):
+    del model.transformer.blocks[start_layer:end_layer]
+    return model
+
+def layer_reduction_model_generator(model, num_layers = None, step = None):
     if num_layers is None:
         num_layers = [1,2,4,8]
     max_len = len(model.transformer.blocks)

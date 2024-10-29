@@ -1,8 +1,18 @@
 import os
+import json
 from datasets import load_dataset
 from transformers import Trainer, TrainingArguments, DataCollatorForLanguageModeling
 
-def get_hf_dataset(file_path = None, file_type = 'csv'):
+with open('datasets\datasets_info.json','r') as f:
+    DATASETS_INFO = json.load(f)
+
+def dataset_columns_mapping(dataset, dataset_name = 'vneconomy'):
+    columns_mapping = DATASETS_INFO[dataset_name]
+    for key in columns_mapping.key():
+        dataset = dataset.rename_column(key,columns_mapping[key])
+    return dataset
+
+def get_hf_dataset(file_path = None, file_type = 'json'):
     if file_path is None or not os.path.exists(file_path):
         print('File',file_path,'not found. Loading dummy instead.')
         return load_dataset('csv', data_files='dummy.csv')
@@ -11,6 +21,7 @@ def get_hf_dataset(file_path = None, file_type = 'csv'):
         return load_dataset(file_type, data_files=file_path)
     
 def process_hf_dataset(dataset, tokenizer):
+    dataset = dataset_columns_mapping(dataset)
     dataset = dataset.map(lambda e: tokenizer(e['text'], truncation=True, padding='max_length'),
                             batched=True)
     dataset.set_format(type='torch', columns=['input_ids', 'attention_mask', 'label'])    
