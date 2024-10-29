@@ -25,6 +25,7 @@ def get_hf_dataset(file_path = None, file_type = 'json'):
     
 def process_hf_dataset(dataset, tokenizer):
     dataset = dataset_columns_mapping(dataset)
+    dataset = dataset['text']
     dataset = dataset.map(lambda e: tokenizer(e['text'], truncation=True, padding='max_length'),
                             batched=True)
     # dataset.set_format(type='torch', columns=['input_ids', 'attention_mask', 'label'])    
@@ -34,10 +35,11 @@ def train_with_hf_dataset(model, tokenizer, file_path, file_type, device, techni
     if file_path is not None:
         file_path = str(Path(file_path).absolute())
     dataset = process_hf_dataset(get_hf_dataset(file_path, file_type), tokenizer)
+    print(dataset)
     datacollator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)  
     if technique == 'full':
         model.resize_token_embeddings(len(tokenizer))
-        # dataset = dataset.train_test_split(test_size=0.2)
+        dataset = dataset.train_test_split(test_size=0.1)
         
         training_args = TrainingArguments(
             output_dir='./train_results',
@@ -59,7 +61,8 @@ def train_with_hf_dataset(model, tokenizer, file_path, file_type, device, techni
         trainer = Trainer(
             model=model,
             args=training_args,
-            train_dataset=dataset,
+            train_dataset=dataset['train'],
+            eval_dataset=dataset['test'],
             data_collator=datacollator
         )
 
