@@ -12,7 +12,7 @@ def load_model(model_name, bnb = False):
             bnb_4bit_quant_type="nf4",
             bnb_4bit_compute_dtype=torch.bfloat16
         )
-        return AutoModel.from_pretrained(model_name, trust_remote_code=True, quantization_config=bnb_config)
+        return AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=True, quantization_config=bnb_config)
     else:
         return AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=True)
 
