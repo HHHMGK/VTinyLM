@@ -44,13 +44,14 @@ def format_instruction(sample):
                 ### Trả lời:
                 {sample['content']}
                 """
+RESPON_TEMPLATE = "### Trả lời:"
 
 def train_with_hf_dataset(model, tokenizer, file_path, device, precision ='fp16', max_seq_length =2048, technique = 'full'):
     if file_path is not None:
         file_path = str(Path(file_path).absolute())
     # dataset = process_hf_dataset(get_hf_dataset(file_path), tokenizer)
     dataset = get_hf_dataset(file_path)
-    datacollator = DataCollatorForCompletionOnlyLM(tokenizer=tokenizer)  
+    datacollator = DataCollatorForCompletionOnlyLM(respon_template=RESPON_TEMPLATE, tokenizer=tokenizer)  
     if technique == 'full':
         dataset = dataset.train_test_split(test_size=0.1)
         print(dataset)
@@ -85,6 +86,7 @@ def train_with_hf_dataset(model, tokenizer, file_path, device, precision ='fp16'
             model=model,
             args=training_args,
             train_dataset=dataset,
+            data_collator=datacollator,
             max_seq_length=max_seq_length,
             tokenizer=tokenizer,
             packing=True,
