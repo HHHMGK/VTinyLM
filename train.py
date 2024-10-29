@@ -89,7 +89,7 @@ def train_with_hf_dataset(model, tokenizer, file_path, device, precision ='fp16'
             data_collator=datacollator,
             max_seq_length=max_seq_length,
             tokenizer=tokenizer,
-            packing=True,
+            # packing=True,
             formatting_func=format_instruction,
         )
         trainer.train()
