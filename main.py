@@ -51,9 +51,8 @@ if args.measure_time:
 if args.run_mode == 'train':
     # print('Config path:', args.config)
     print('Loading as base model:', args.base_model)
-    # base_model = load_model(args.base_model)
+    base_model = load_model(args.base_model)
     tokenizer = load_tokenizer(args.base_model)
-    base_model = None
     print('Model and Tokenizer loaded')
     print(args.pruning)
     if args.pruning:
