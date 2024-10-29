@@ -19,6 +19,7 @@ parser.add_argument('--instructive_prompt', type=str, default=False, help='Addin
 parser.add_argument('--measure_time', action=argparse.BooleanOptionalAction, help='Measure run time or not')
 parser.add_argument('--output_console', action=argparse.BooleanOptionalAction, help='Print output to console or not')
 # parser.add_argument('--run_dummy', type=bool, default=False, help='Run dummy mode (system testing) or not')
+parser.add_argument('--bnb', action=argparse.BooleanOptionalAction, help='Load model with Bits and Bytes or not')
 
 # For TRAINing mode
 parser.add_argument('--model_path', type=str, default='', help='Path to model file')
@@ -52,8 +53,7 @@ if args.measure_time:
 if args.run_mode == 'train':
     # print('Config path:', args.config)
     print('Loading as base model:', args.base_model)
-    base_model = load_model(args.base_model)
-    # base_model = None/
+    base_model = load_model(args.base_model, bnb=args.bnb)
     tokenizer = load_tokenizer(args.base_model)
     print('Model and Tokenizer loaded')
     print(args.pruning)
@@ -74,7 +74,7 @@ if args.run_mode == 'eval':
     print('Evaluating with benchmark:', args.benchmark)
     
     print('Loading base model:', args.base_model)
-    base_model = load_model(args.base_model)
+    base_model = load_model(args.base_model, bnb=args.bnb)
     tokenizer = load_tokenizer(args.base_model)
     print('Model loaded')
     results = []
@@ -135,7 +135,7 @@ if args.run_mode == 'infer':
         with open(args.file,'r') as     f:
             input.extend(f.readlines())
     
-    model = load_model(args.base_model)
+    model = load_model(args.base_model, bnb=args.bnb)
     tokenizer = load_tokenizer(args.base_model)
     
 if args.measure_time:
