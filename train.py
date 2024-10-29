@@ -53,7 +53,7 @@ def train_with_hf_dataset(model, tokenizer, file_path, device, precision ='fp16'
     dataset = get_hf_dataset(file_path)
     datacollator = DataCollatorForCompletionOnlyLM(response_template=RESPON_TEMPLATE, tokenizer=tokenizer)  
     if technique == 'full':
-        dataset = dataset.train_test_split(test_size=0.1)
+        # dataset = dataset.train_test_split(test_size=0.1)
         print(dataset)
         model.resize_token_embeddings(len(tokenizer))
         
