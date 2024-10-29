@@ -5,8 +5,8 @@ from datasets import load_dataset
 from transformers import Trainer, TrainingArguments, DataCollatorForLanguageModeling
 
 # DATASETS_INFO_PATH = Path(__file__).parent / 'datasets' / 'datasets_info.json'
-DATASETS_INFO_PATH = Path('./datasets/datasets_info.json').absolute()
-with DATASETS_INFO_PATH.open('r') as f:
+DATASETS_INFO_PATH = str(Path('./datasets/datasets_info.json').absolute())
+with open(DATASETS_INFO_PATH, 'r') as f:
     DATASETS_INFO = json.load(f)
 
 def dataset_columns_mapping(dataset, dataset_name = 'vneconomy'):
@@ -32,7 +32,7 @@ def process_hf_dataset(dataset, tokenizer):
 
 def train_with_hf_dataset(model, tokenizer, file_path, file_type, device, technique = 'full'):
     if file_path is not None:
-        file_path = Path(file_path).absolute()
+        file_path = str(Path(file_path).absolute())
     dataset = process_hf_dataset(get_hf_dataset(file_path, file_type), tokenizer)
     datacollator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)  
     if technique == 'full':
