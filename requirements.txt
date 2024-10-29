@@ -6,3 +6,4 @@ torchviz
 evaluate
 trl
 peft
+bitsandbytes
