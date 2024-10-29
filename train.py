@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 from datasets import load_dataset, Dataset
 from transformers import Trainer, TrainingArguments, DataCollatorForLanguageModeling
+from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
 import pandas as pd
 
 # DATASETS_INFO_PATH = Path(__file__).parent / 'datasets' / 'datasets_info.json'
@@ -29,19 +30,27 @@ def get_hf_dataset(file_path = None):
     
     return Dataset.from_pandas(df)
     
-def process_hf_dataset(dataset, tokenizer):
-    dataset = dataset_columns_mapping(dataset)
-    dataset = dataset.select_columns('text')
-    dataset = dataset.map(lambda e: tokenizer(e['text'], truncation=True, padding='max_length'),
-                            batched=True)
-    # dataset.set_format(type='torch', columns=['input_ids', 'attention_mask', 'label'])    
-    return dataset
+# def process_hf_dataset(dataset, tokenizer):
+#     dataset = dataset_columns_mapping(dataset)
+#     dataset = dataset.select_columns('text')
+#     dataset = dataset.map(lambda e: tokenizer(e['text'], truncation=True, padding='max_length'),
+#                             batched=True)
+#     # dataset.set_format(type='torch', columns=['input_ids', 'attention_mask', 'label'])    
+#     return dataset
 
-def train_with_hf_dataset(model, tokenizer, file_path, device, precision ='fp16', technique = 'full'):
+def format_instruction(sample):
+    return  f"""### Câu hỏi: 
+                Hoàn thiện bài báo về {sample['title']} thuộc thể loại {sample['category']}\n
+                ### Trả lời:
+                {sample['content']}
+                """
+
+def train_with_hf_dataset(model, tokenizer, file_path, device, precision ='fp16', max_seq_length =2048, technique = 'full'):
     if file_path is not None:
         file_path = str(Path(file_path).absolute())
-    dataset = process_hf_dataset(get_hf_dataset(file_path), tokenizer)
-    datacollator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)  
+    # dataset = process_hf_dataset(get_hf_dataset(file_path), tokenizer)
+    dataset = get_hf_dataset(file_path)
+    datacollator = DataCollatorForCompletionOnlyLM(tokenizer=tokenizer)  
     if technique == 'full':
         dataset = dataset.train_test_split(test_size=0.1)
         print(dataset)
@@ -65,13 +74,22 @@ def train_with_hf_dataset(model, tokenizer, file_path, device, precision ='fp16'
             fp16=(precision=='fp16'),
         )
 
-        trainer = Trainer(
+        # trainer = Trainer(
+        #     model=model,
+        #     args=training_args,
+        #     train_dataset=dataset['train'],
+        #     eval_dataset=dataset['test'],
+        #     data_collator=datacollator
+        # )
+        trainer = SFTTrainer(
             model=model,
             args=training_args,
-            train_dataset=dataset['train'],
-            eval_dataset=dataset['test'],
-            data_collator=datacollator
+            train_dataset=dataset,
+            max_seq_length=max_seq_length,
+            tokenizer=tokenizer,
+            packing=True,
+            formatting_func=format_instruction,
         )
-
         trainer.train()
+        trainer.save_model()
 
