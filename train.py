@@ -73,7 +73,7 @@ def train_with_hf_dataset(model, tokenizer, file_path, device, precision ='fp16'
         peft_cfg = LoraConfig(
             lora_alpha=16,
             lora_dropout=0.1,
-            r=64,
+            r=8,
             bias="none",
             task_type="CAUSAL_LM",
         )
