@@ -68,7 +68,7 @@ def train_with_hf_dataset(model, tokenizer, file_path, device, precision ='fp16'
     if technique == 'lora':
         # dataset = dataset.train_test_split(test_size=0.1)
         print(dataset)
-        model.resize_token_embeddings(len(tokenizer))
+        # model.resize_token_embeddings(len(tokenizer))
 
         peft_cfg = LoraConfig(
             lora_alpha=16,
@@ -77,7 +77,7 @@ def train_with_hf_dataset(model, tokenizer, file_path, device, precision ='fp16'
             bias="none",
             task_type="CAUSAL_LM",
         )
-        model = prepare_model_for_kbit_training(model)
+        model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=False)
         model = get_peft_model(model, peft_cfg)
         
         training_args = TrainingArguments(
