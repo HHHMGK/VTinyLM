@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 from datasets import load_dataset, Dataset
 from transformers import Trainer, TrainingArguments, DataCollatorForLanguageModeling
-from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
+from trl import SFTTrainer, DataCollatorForCompletionOnlyLM, SFTConfig
 from peft import LoraConfig, prepare_model_for_kbit_training, get_peft_model
 import pandas as pd
 
@@ -74,18 +74,37 @@ def train_with_hf_dataset(model, tokenizer, file_path, device, precision ='fp16'
             lora_alpha=16,
             lora_dropout=0.1,
             r=4,
+            target_modules=["all_linear"]
             bias="none",
             task_type="CAUSAL_LM",
         )
         model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=False)
         model = get_peft_model(model, peft_cfg)
         
-        training_args = TrainingArguments(
+        # training_args = TrainingArguments(
+        #     output_dir='./train_results',
+        #     save_strategy='epoch',
+        #     num_train_epochs=2,
+        #     per_device_train_batch_size=8,
+        #     per_device_eval_batch_size=8,
+        #     # warmup_steps=500,
+        #     # weight_decay=0.01,
+        #     logging_dir='./train_logs',
+        #     logging_steps=10,
+        #     adam_beta1=0.9,
+        #     adam_beta2=0.95,
+        #     learning_rate=2e-4,
+        #     lr_scheduler_type='cosine',
+        #     report_to='none',
+        #     fp16=(precision=='fp16'),
+        # )
+
+        training_args = SFTConfig(
             output_dir='./train_results',
             save_strategy='epoch',
             num_train_epochs=2,
-            per_device_train_batch_size=8,
-            per_device_eval_batch_size=8,
+            per_device_train_batch_size=4,
+            per_device_eval_batch_size=4,
             # warmup_steps=500,
             # weight_decay=0.01,
             logging_dir='./train_logs',
