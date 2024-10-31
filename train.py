@@ -109,6 +109,7 @@ def train_with_hf_dataset(model, tokenizer, file_path, device, precision ='fp16'
             # weight_decay=0.01,
             logging_dir='./train_logs',
             logging_steps=10,
+            logging_enabled=False,
             adam_beta1=0.9,
             adam_beta2=0.95,
             learning_rate=2e-4,
@@ -126,7 +127,6 @@ def train_with_hf_dataset(model, tokenizer, file_path, device, precision ='fp16'
             max_seq_length=max_seq_length,
             tokenizer=tokenizer,
             formatting_func=format_instruction,
-            logging_enabled=False
         )
         trainer.train()
         trainer.save_model()
