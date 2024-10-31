@@ -27,6 +27,7 @@ parser.add_argument('--pruning', action=argparse.BooleanOptionalAction, help='Pr
 parser.add_argument('--pruning_layer_start', type=int, default=0, help='Pruning start layer')
 parser.add_argument('--pruning_layer_end', type=int, default=0, help='Pruning end layer')
 parser.add_argument('--dataset_path', type=str, default='', help='Path to dataset file')
+parser.add_argument('--block_size', type=int, default=1024, help='Size of text chunk')
 parser.add_argument('--precision', type=str, default='fp16', choices=['fp16','fp32'], help='Precision mode')
 parser.add_argument('--eval_after_train', action=argparse.BooleanOptionalAction, help='Evaluate after training or not')
 
@@ -63,7 +64,7 @@ if args.run_mode == 'train':
         base_model = layer_removal(base_model, args.pruning_layer_start, args.pruning_layer_end)
         print('Model pruned')
     print('Training model')
-    train_with_hf_dataset(base_model, tokenizer, args.dataset_path, device, technique='lora')
+    train_with_hf_dataset(base_model, tokenizer, args.dataset_path, device,max_seq_length=args.block_size, technique='lora')
 
     if args.eval_after_train:
         print('Evaluating model')
