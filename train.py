@@ -126,6 +126,7 @@ def train_with_hf_dataset(model, tokenizer, file_path, device, precision ='fp16'
             max_seq_length=max_seq_length,
             tokenizer=tokenizer,
             formatting_func=format_instruction,
+            logging_enabled=False
         )
         trainer.train()
         trainer.save_model()
