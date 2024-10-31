@@ -55,6 +55,7 @@ if args.run_mode == 'train':
     print('Loading as base model:', args.base_model)
     base_model = load_model(args.base_model, bnb=args.bnb)
     tokenizer = load_tokenizer(args.base_model)
+    tokenizer.pad_token = tokenizer.eos_token
     print('Model and Tokenizer loaded')
     print(args.pruning)
     if args.pruning:
