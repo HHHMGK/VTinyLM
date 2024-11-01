@@ -39,6 +39,9 @@ def get_hf_dataset(file_path = None):
 #     # dataset.set_format(type='torch', columns=['input_ids', 'attention_mask', 'label'])    
 #     return dataset
 
+INSTRUCTION_TEMPLATE = "### Câu hỏi:"
+RESPONSE_TEMPLATE = "\n### Trả lời:"
+
 def format_instruction(sample):
     # return  f"""### Câu hỏi: 
     #             Hoàn thiện bài báo về {sample['title']} thuộc thể loại {sample['category']}\n
@@ -54,7 +57,6 @@ def format_instruction(sample):
                             """)
     return formatted    
 
-RESPON_TEMPLATE = "\n### Trả lời:"
 
 def train_with_hf_dataset(model, tokenizer, file_path, device, precision ='fp16', max_seq_length =2048, technique = 'lora'):
     if file_path is not None:
@@ -62,7 +64,8 @@ def train_with_hf_dataset(model, tokenizer, file_path, device, precision ='fp16'
     # dataset = process_hf_dataset(get_hf_dataset(file_path), tokenizer)
     dataset = get_hf_dataset(file_path)
     datacollator = DataCollatorForCompletionOnlyLM(
-        response_template=RESPON_TEMPLATE, 
+        instruction_template=tokenizer(INSTRUCTION_TEMPLATE),
+        response_template=tokenizer(RESPONSE_TEMPLATE),
         tokenizer=tokenizer
     )  
     if technique == 'lora':
@@ -87,7 +90,7 @@ def train_with_hf_dataset(model, tokenizer, file_path, device, precision ='fp16'
         #     num_train_epochs=2,
         #     per_device_train_batch_size=8,
         #     per_device_eval_batch_size=8,
-        #     # warmup_steps=500,
+        #     # warmup_steps=500,   
         #     # weight_decay=0.01,
         #     logging_dir='./train_logs',
         #     logging_steps=10,
