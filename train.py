@@ -64,21 +64,20 @@ def train_with_hf_dataset(model, tokenizer, file_path, device, precision ='fp16'
     # dataset = process_hf_dataset(get_hf_dataset(file_path), tokenizer)
     dataset = get_hf_dataset(file_path)
     datacollator = DataCollatorForCompletionOnlyLM(
-        instruction_template=tokenizer(INSTRUCTION_TEMPLATE),
-        response_template=tokenizer(RESPONSE_TEMPLATE),
+        instruction_template=INSTRUCTION_TEMPLATE,
+        response_template=RESPONSE_TEMPLATE,
         tokenizer=tokenizer
     )  
     if technique == 'lora':
-        # dataset = dataset.train_test_split(test_size=0.1)
         print(dataset)
         # model.resize_token_embeddings(len(tokenizer))
 
         peft_cfg = LoraConfig(
-            lora_alpha=16,
-            lora_dropout=0.1,
-            r=4,
-            # target_modules=["all_linear"]
-            bias="none",
+            # lora_alpha=16,
+            # lora_dropout=0.1,
+            # r=4,
+            # # target_modules=["all_linear"]
+            # bias="none",
             task_type="CAUSAL_LM",
         )
         model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=False)
@@ -110,8 +109,8 @@ def train_with_hf_dataset(model, tokenizer, file_path, device, precision ='fp16'
             per_device_eval_batch_size=2,
             # warmup_steps=500,
             # weight_decay=0.01,
-            # logging_dir='./train_logs',
-            # logging_steps=10,
+            logging_dir='./train_logs',
+            logging_steps=10,
             adam_beta1=0.9,
             adam_beta2=0.95,
             learning_rate=2e-4,
