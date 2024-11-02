@@ -30,6 +30,7 @@ parser.add_argument('--dataset_path', type=str, default='', help='Path to datase
 parser.add_argument('--block_size', type=int, default=1024, help='Size of text chunk')
 parser.add_argument('--precision', type=str, default='fp16', choices=['fp16','fp32'], help='Precision mode')
 parser.add_argument('--eval_after_train', action=argparse.BooleanOptionalAction, help='Evaluate after training or not')
+parser.add_argument('--save_path', type=str, default='./trained_model', help='Path to save model')
 
 # For EVALuating mode
 parser.add_argument('--benchmark', type=str, default='perplexity-vn', choices=['perplexity-vn','perplexity-en','villm-eval'], help='Benchmark to evaluate')
@@ -54,24 +55,25 @@ if args.measure_time:
 if args.run_mode == 'train':
     # print('Config path:', args.config)
     print('Loading as base model:', args.base_model)
-    base_model = load_model(args.base_model, bnb=args.bnb)
+    model = load_model(args.base_model, bnb=args.bnb)
     tokenizer = load_tokenizer(args.base_model)
     tokenizer.pad_token = tokenizer.eos_token
     print('Model and Tokenizer loaded')
-    print(args.pruning)
     if args.pruning:
         print('Pruning model')
-        base_model = layer_removal(base_model, args.pruning_layer_start, args.pruning_layer_end)
+        model = layer_removal(model, args.pruning_layer_start, args.pruning_layer_end)
         print('Model pruned')
     print('Training model')
-    train_with_hf_dataset(base_model, tokenizer, args.dataset_path, device,max_seq_length=args.block_size, technique='lora')
+    train_with_hf_dataset(model, tokenizer, args.dataset_path, device,max_seq_length=args.block_size, technique='lora')
 
     if args.eval_after_train:
         print('Evaluating model')
-        eval_results = eval_perplexity(base_model, tokenizer, device, lang='vn', instructive=args.instructive_prompt,repeat=args.repeat, measure_time=args.measure_time)
+        eval_results = eval_perplexity(model, tokenizer, device, lang='vn', instructive=args.instructive_prompt,repeat=args.repeat, measure_time=args.measure_time)
         print('Perplexity:', eval_results['perplexity'])
         print('Time:', eval_results['time'])
     
+    model.save_pretrained(args.save_path, from_pt=True)
+
 if args.run_mode == 'eval':
     print('Evaluating with benchmark:', args.benchmark)
     

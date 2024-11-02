@@ -7,3 +7,4 @@ evaluate
 trl
 peft
 bitsandbytes
+triton # for phogpt ?
