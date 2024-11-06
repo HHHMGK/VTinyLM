@@ -30,7 +30,7 @@ def eval_perplexity(model, tokenizer, device, lang='vn', instructive=False ,repe
             additional_prompt = 'Write an argumentative essay about the following topic: '
         prompts = [additional_prompt + prompt for prompt in prompts]
         
-    model = model.to('cuda')
+    model = model.to(device)
     model.eval()
     perplexity_score = []
     if measure_time:
@@ -42,8 +42,9 @@ def eval_perplexity(model, tokenizer, device, lang='vn', instructive=False ,repe
     else:
         for i in range(repeat):
             perplexity_score.append(perplexity._compute(prompts, model, tokenizer, device)['mean_perplexity'])
-    model.to('cpu')
-    torch.cuda.empty_cache()
+    if device.type == 'cuda':
+        model.to('cpu')
+        torch.cuda.empty_cache()
 
     perplexity_mean = perplexity_score[0]
     perplexity_stddev = 0
