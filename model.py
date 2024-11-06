@@ -1,20 +1,30 @@
 from transformers import AutoModel, AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
+from peft import AutoPeftModelForCausalLM
 # import bitsandbytes as bnb
 import torch
 import torch.nn as nn
 import copy
 
-def load_model(model_name, bnb = False):
-    if bnb:
+def load_model(model_name, bnb='none', peft_model=False):
+    if peft_model:
+        AUTOMODEL = AutoPeftModelForCausalLM
+    else:
+        AUTOMODEL = AutoModelForCausalLM
+    if bnb == '4bit':
         bnb_config = BitsAndBytesConfig(
             load_in_4bit=True,
             bnb_4bit_use_double_quant=True,
             bnb_4bit_quant_type="nf4",
             bnb_4bit_compute_dtype=torch.bfloat16
         )
-        return AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=True, quantization_config=bnb_config)
+        return AUTOMODEL.from_pretrained(model_name, trust_remote_code=True, quantization_config=bnb_config)
+    elif bnb == '8bit':
+        bnb_config = BitsAndBytesConfig(
+            load_in_8bit=True
+        )
+        return AUTOMODEL.from_pretrained(model_name, trust_remote_code=True, quantization_config=bnb_config)
     else:
-        return AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=True)
+        return AUTOMODEL.from_pretrained(model_name, trust_remote_code=True)
 
 def load_tokenizer(model_name):
     return AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
