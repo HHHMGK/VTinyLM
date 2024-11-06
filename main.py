@@ -19,7 +19,7 @@ parser.add_argument('--instructive_prompt', type=str, default=False, help='Addin
 parser.add_argument('--measure_time', action=argparse.BooleanOptionalAction, help='Measure run time or not')
 parser.add_argument('--output_console', action=argparse.BooleanOptionalAction, help='Print output to console or not')
 # parser.add_argument('--run_dummy', type=bool, default=False, help='Run dummy mode (system testing) or not')
-parser.add_argument('--bnb', action=argparse.BooleanOptionalAction, help='Load model with Bits and Bytes or not')
+parser.add_argument('--bnb', type=str, default='none', choices=['none', '4bit', '8bit'], help='Load model with Bits and Bytes (4bit or 8bit) or not')
 
 # For TRAINing mode
 parser.add_argument('--model_path', type=str, default='', help='Path to model file')
@@ -64,7 +64,7 @@ if args.run_mode == 'train':
         model = layer_removal(model, args.pruning_layer_start, args.pruning_layer_end)
         print('Model pruned')
     print('Training model')
-    train_with_hf_dataset(model, tokenizer, args.dataset_path, device,max_seq_length=args.block_size, technique='lora')
+    train_with_hf_dataset(model, tokenizer, args.dataset_path, max_seq_length=args.block_size, precision=args.precision, technique='lora', device=device)
 
     if args.eval_after_train:
         print('Evaluating model')

@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 from datasets import load_dataset, Dataset
 from transformers import Trainer, TrainingArguments, DataCollatorForLanguageModeling
-from trl import SFTTrainer, DataCollatorForCompletionOnlyLM, SFTConfig
+# from trl import SFTTrainer, DataCollatorForCompletionOnlyLM, SFTConfig
 from peft import LoraConfig, prepare_model_for_kbit_training, get_peft_model
 import pandas as pd
 
@@ -31,43 +31,66 @@ def get_hf_dataset(file_path = None):
     
     return Dataset.from_pandas(df)
     
-# def process_hf_dataset(dataset, tokenizer):
-#     dataset = dataset_columns_mapping(dataset)
-#     dataset = dataset.select_columns('text')
-#     dataset = dataset.map(lambda e: tokenizer(e['text'], truncation=True, padding='max_length'),
-#                             batched=True)
-#     # dataset.set_format(type='torch', columns=['input_ids', 'attention_mask', 'label'])    
-#     return dataset
+# The following function is from HF's example
+def group_texts(examples, block_size):
+    # Concatenate all texts.
+    concatenated_examples = {k: sum(examples[k], []) for k in examples.keys()}
+    total_length = len(concatenated_examples[list(examples.keys())[0]])
+    # We drop the small remainder, we could add padding if the model supported it instead of this drop, you can
+    # customize this part to your needs.
+    if total_length >= block_size:
+        total_length = (total_length // block_size) * block_size
+    # Split by chunks of block_size.
+    result = {
+        k: [t[i : i + block_size] for i in range(0, total_length, block_size)]
+        for k, t in concatenated_examples.items()
+    }
+    result["labels"] = result["input_ids"].copy()
+    return result
+
+def process_hf_dataset(dataset, tokenizer, format_fn, max_seq_length):
+    dataset = dataset.map(format_fn, batched=True)
+    tokenized_dataset = dataset.map(lambda e: tokenizer([" ".join(x) for x in e['text']]), 
+                                    batched=True, remove_columns=dataset.column_names)
+    grouped_text_dataset = tokenized_dataset.map(lambda e: group_texts(e, max_seq_length), batched=True)
+    return grouped_text_dataset
 
 INSTRUCTION_TEMPLATE = "### Câu hỏi:"
 RESPONSE_TEMPLATE = "\n### Trả lời:"
 
+def format_fn(sample):
+    return {
+        'text': [
+            f"""{INSTRUCTION_TEMPLATE}
+                Hoàn thiện bài báo về {title} thuộc thể loại {category}
+                {RESPONSE_TEMPLATE}
+                {content}
+            """ for title, category, content in zip(sample['title'], sample['category'], sample['content'])
+        ]
+    }
+
 def format_instruction(sample):
-    # return  f"""### Câu hỏi: 
-    #             Hoàn thiện bài báo về {sample['title']} thuộc thể loại {sample['category']}\n
-    #             ### Trả lời:
-    #             {sample['content']}
-    #             """
-    formatted = []
-    for i in range(len(sample['content'])):
-        formatted.append(f"""### Câu hỏi: 
-                            Hoàn thiện bài báo về {sample['title'][i]} thuộc thể loại {sample['category'][i]}
-                            \n### Trả lời:
-                            {sample['content'][i]}
-                            """)
-    return formatted    
+    return  f"""{INSTRUCTION_TEMPLATE}
+                Hoàn thiện bài báo về {sample['title']} thuộc thể loại {sample['category']}
+                {RESPONSE_TEMPLATE}
+                {sample['content']}
+                """
 
-
-def train_with_hf_dataset(model, tokenizer, file_path, device, precision ='fp16', max_seq_length =2048, technique = 'lora'):
+def train_with_hf_dataset(model, tokenizer, file_path, precision, max_seq_length, technique = 'lora', device = 'cuda'):
     if file_path is not None:
         file_path = str(Path(file_path).absolute())
-    # dataset = process_hf_dataset(get_hf_dataset(file_path), tokenizer)
-    dataset = get_hf_dataset(file_path)
-    datacollator = DataCollatorForCompletionOnlyLM(
-        instruction_template=INSTRUCTION_TEMPLATE,
-        response_template=RESPONSE_TEMPLATE,
-        tokenizer=tokenizer
-    )  
+    dataset = process_hf_dataset(get_hf_dataset(file_path), tokenizer, format_fn, max_seq_length)
+    dataset = dataset.train_test_split(test_size=0.1)
+    # dataset = get_hf_dataset(file_path)
+    # datacollator = DataCollatorForCompletionOnlyLM(
+    #     instruction_template=INSTRUCTION_TEMPLATE,
+    #     response_template=RESPONSE_TEMPLATE,
+    #     tokenizer=tokenizer
+    # )  
+    datacollator = DataCollatorForLanguageModeling(
+        tokenizer=tokenizer,
+        mlm=False,
+    )
     if technique == 'lora':
         print(dataset)
         # model.resize_token_embeddings(len(tokenizer))
@@ -83,31 +106,13 @@ def train_with_hf_dataset(model, tokenizer, file_path, device, precision ='fp16'
         model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=False)
         model = get_peft_model(model, peft_cfg)
         
-        # training_args = TrainingArguments(
-        #     output_dir='./train_results',
-        #     save_strategy='epoch',
-        #     num_train_epochs=2,
-        #     per_device_train_batch_size=8,
-        #     per_device_eval_batch_size=8,
-        #     # warmup_steps=500,   
-        #     # weight_decay=0.01,
-        #     logging_dir='./train_logs',
-        #     logging_steps=10,
-        #     adam_beta1=0.9,
-        #     adam_beta2=0.95,
-        #     learning_rate=2e-4,
-        #     lr_scheduler_type='cosine',
-        #     report_to='none',
-        #     fp16=(precision=='fp16'),
-        # )
-
-        training_args = SFTConfig(
+        training_args = TrainingArguments(
             output_dir='./train_results',
             save_strategy='epoch',
             num_train_epochs=2,
-            per_device_train_batch_size=2,
-            per_device_eval_batch_size=2,
-            # warmup_steps=500,
+            per_device_train_batch_size=8,
+            per_device_eval_batch_size=8,
+            # warmup_steps=500,   
             # weight_decay=0.01,
             logging_dir='./train_logs',
             logging_steps=10,
@@ -119,16 +124,15 @@ def train_with_hf_dataset(model, tokenizer, file_path, device, precision ='fp16'
             fp16=(precision=='fp16'),
         )
 
-        trainer = SFTTrainer(
+        trainer = Trainer(
             model=model,
             args=training_args,
-            peft_config=peft_cfg,
-            train_dataset=dataset,
             data_collator=datacollator,
-            max_seq_length=max_seq_length,
+            train_dataset=dataset['train'],
+            eval_dataset=dataset['test'],
             tokenizer=tokenizer,
-            formatting_func=format_instruction,
         )
+
         trainer.train()
         trainer.save_model()
 
