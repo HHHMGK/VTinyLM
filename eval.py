@@ -4,31 +4,22 @@ import torch
 import numpy as np
 from metrics import Perplexity
 
-BENCHMARK_PATH = str(Path('benchmarks.json').absolute())
-with open(BENCHMARK_PATH,'r',encoding='utf-8') as f:
-    BENCHMARKS = json.load(f)
-    
-def eval_perplexity(model, tokenizer, device, lang='vn', instructive=False ,repeat=1, measure_time=False):
+ESSAY_BENCHMARK_PATH = str(Path('datasets\\benchmarks\\essay.json').absolute())
+NEWS_BENCHMARK_PATH = str(Path('datasets\\benchmarks\\news.json').absolute())
+
+def eval_perplexity(model, tokenizer, prompts, device, repeat=1, measure_time=False):
     """
-    Evaluate the perplexity of a model on a given language benchmark.
+    Evaluate the perplexity of a model on a given benchmark.
     Args:
+
         model: The model to evaluate.
         tokenizer: The tokenizer to use.
+        prompts: The prompts to evaluate on.
         device: The device to run the model on.
-        lang: The language benchmark to evaluate on, 'vn' or 'en'.
-        instructive: Whether to add an instructive prompt before the benchmark.
         repeat: Number of times to repeat the evaluation.
         measure_time: Whether to measure the time taken for each evaluation.
     """
     perplexity = Perplexity()
-
-    prompts = BENCHMARKS["perplexity"]["data"][lang]
-    if instructive:
-        if lang=='vn':
-            additional_prompt = 'Viết một đoạn văn nghị luận về vấn đề sau: '
-        elif lang=='en':
-            additional_prompt = 'Write an argumentative essay about the following topic: '
-        prompts = [additional_prompt + prompt for prompt in prompts]
         
     model = model.to(device)
     model.eval()
@@ -60,5 +51,45 @@ def eval_perplexity(model, tokenizer, device, lang='vn', instructive=False ,repe
             time_mean = np.mean(timing)
             time_stddev = np.std(timing)
 
-    
     return {'perplexity': (perplexity_mean, perplexity_stddev), 'time': (time_mean, time_stddev) if measure_time else None}
+
+def eval_essay_perplexity(model, tokenizer, device, lang='vn', instructive=False ,repeat=1, measure_time=False):
+    """
+    Evaluate the perplexity of a model on a given language benchmark.
+    Args:
+        lang: The language benchmark to evaluate on, 'vn' or 'en'.
+        instructive: Whether to add an instructive prompt before the benchmark.
+    """
+    perplexity = Perplexity()
+
+    with open(ESSAY_BENCHMARK_PATH,'r',encoding='utf-8') as f:
+        ESSAY_BENCHMARKS = json.load(f)
+    prompts = ESSAY_BENCHMARKS["perplexity"]["data"][lang]
+    if instructive:
+        if lang=='vn':
+            additional_prompt = 'Viết một đoạn văn nghị luận về vấn đề sau: '
+        elif lang=='en':
+            additional_prompt = 'Write an argumentative essay about the following topic: '
+        prompts = [additional_prompt + prompt for prompt in prompts]
+    
+    return eval_perplexity(model, tokenizer, prompts, device, repeat, measure_time)
+
+def eval_news_perplexity(model, tokenizer, device, lang='vn', tag="Thị trường", instructive=False, repeat=1, measure_time=False):
+    """
+    Evaluate the perplexity of a model on a given language benchmark.
+    Args:
+        lang: The language benchmark to evaluate on, 'vn' or 'en'.
+        instructive: Whether to add an instructive prompt before the benchmark.
+    """
+    perplexity = Perplexity()
+    with open(NEWS_BENCHMARK_PATH,'r',encoding='utf-8') as f:
+        NEWS_BENCHMARKS = json.load(f)
+    prompts = NEWS_BENCHMARKS["perplexity"]["news"][lang][tag]
+    if instructive:
+        if lang=='vn':
+            prompt_format = 'Hoàn thiện bài báo về {title} thuộc thể loại {tag}'
+        # elif lang=='en':
+        #     additional_prompt = 'Write an argumentative essay about the following topic: '
+        prompts = [prompt_format.format(title=prompt, tag=tag) for prompt in prompts]
+    
+    return eval_perplexity(model, tokenizer, prompts, device, repeat, measure_time)

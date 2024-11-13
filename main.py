@@ -4,7 +4,7 @@ import torch
 import json, csv
 from train import train_with_hf_dataset
 from model import load_model, load_tokenizer, layer_reduction_model_generator, layer_removal
-from eval import eval_perplexity
+from eval import eval_essay_perplexity
 
 # Take arg from command line
 parser = argparse.ArgumentParser(description='')
@@ -68,7 +68,7 @@ if args.run_mode == 'train':
 
     if args.eval_after_train:
         print('Evaluating model')
-        eval_results = eval_perplexity(model, tokenizer, device, lang='vn', instructive=args.instructive_prompt,repeat=args.repeat, measure_time=args.measure_time)
+        eval_results = eval_essay_perplexity(model, tokenizer, device, lang='vn', instructive=args.instructive_prompt,repeat=args.repeat, measure_time=args.measure_time)
         print('Perplexity:', eval_results['perplexity'])
         print('Time:', eval_results['time'])
     
@@ -87,7 +87,7 @@ if args.run_mode == 'eval':
 
         if args.eval_base:
             print('Evaluating base model')
-            eval_results = eval_perplexity(base_model, tokenizer, device, lang=lang, instructive=args.instructive_prompt,repeat=args.repeat, measure_time=args.measure_time)
+            eval_results = eval_essay_perplexity(base_model, tokenizer, device, lang=lang, instructive=args.instructive_prompt,repeat=args.repeat, measure_time=args.measure_time)
             print('Perplexity:', eval_results['perplexity'])
             # _perplexity = f'{round(eval_results["perplexity"][0],3)} 0xC2 {round(round(eval_results["perplexity"][1],3))}'
             # _time = f'{round(eval_results["time"][0],3)} 0xC2 {round(round(eval_results["time"][1],3))}' if args.measure_time else None
@@ -102,7 +102,7 @@ if args.run_mode == 'eval':
                 if model is None:
                     break
                 print(f'Evaluating model with layers from {layer_start} to {layer_end} removed')
-                eval_results = eval_perplexity(model, tokenizer, device, lang=lang, instructive=args.instructive_prompt,repeat=args.repeat, measure_time=args.measure_time)
+                eval_results = eval_essay_perplexity(model, tokenizer, device, lang=lang, instructive=args.instructive_prompt,repeat=args.repeat, measure_time=args.measure_time)
                 print('Perplexity:', eval_results['perplexity'])
                 results.append({'Modification':f'Removed {layer_start} to {layer_end}', 
                             'Perplexity_mean':eval_results['perplexity'][0], 'Perplexity_stddev':eval_results['perplexity'][1], 
