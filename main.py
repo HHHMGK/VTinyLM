@@ -55,7 +55,7 @@ if args.measure_time:
     start_time = time.time()
 
 if args.run_mode == 'train':
-    if args.load_peft_path:
+    if args.load_peft_path is not None:
         print('Loading model', args.base_model, 'with Peft adapter:', args.load_peft_path)
         model = load_model(args.base_model, bnb=args.bnb, peft_path=args.load_peft_path)
     else:
@@ -83,7 +83,7 @@ if args.run_mode == 'train':
 if args.run_mode == 'eval':
     print('Evaluating with benchmark:', args.benchmark)
     
-    if args.load_peft_path:
+    if args.load_peft_path is not None:
         print('Loading model', args.base_model, 'with Peft adapter:', args.load_peft_path)
         base_model = load_model(args.base_model, bnb=args.bnb, peft_path=args.load_peft_path)
     else:
