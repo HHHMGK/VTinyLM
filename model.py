@@ -1,15 +1,12 @@
 from transformers import AutoModel, AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
-from peft import AutoPeftModelForCausalLM
+from peft import PeftModel
 # import bitsandbytes as bnb
 import torch
 import torch.nn as nn
 import copy
 
-def load_model(model_name, bnb='none', peft_model=False):
-    if peft_model:
-        AUTOMODEL = AutoPeftModelForCausalLM
-    else:
-        AUTOMODEL = AutoModelForCausalLM
+def load_model(model_path, bnb='none', peft_path=None):
+    bnb_config = None
     if bnb == '4bit':
         bnb_config = BitsAndBytesConfig(
             load_in_4bit=True,
@@ -17,17 +14,20 @@ def load_model(model_name, bnb='none', peft_model=False):
             bnb_4bit_quant_type="nf4",
             bnb_4bit_compute_dtype=torch.bfloat16
         )
-        return AUTOMODEL.from_pretrained(model_name, trust_remote_code=True, quantization_config=bnb_config)
     elif bnb == '8bit':
         bnb_config = BitsAndBytesConfig(
             load_in_8bit=True
         )
-        return AUTOMODEL.from_pretrained(model_name, trust_remote_code=True, quantization_config=bnb_config)
-    else:
-        return AUTOMODEL.from_pretrained(model_name, trust_remote_code=True)
+    model = AutoModelForCausalLM.from_pretrained(model_path, trust_remote_code=True, quantization_config=bnb_config)
+    if peft_path is not None:
+        model = PeftModel.from_pretrained(model, peft_path)
+        model = model.merge_and_unload()
+    return model
 
-def load_tokenizer(model_name):
-    return AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+def load_tokenizer(model_path):
+    tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+    tokenizer.pad_token = tokenizer.eos_token
+    return tokenizer
 
 def clone_model(model):
     return copy.deepcopy(model)

@@ -20,6 +20,7 @@ parser.add_argument('--measure_time', action=argparse.BooleanOptionalAction, hel
 parser.add_argument('--output_console', action=argparse.BooleanOptionalAction, help='Print output to console or not')
 # parser.add_argument('--run_dummy', type=bool, default=False, help='Run dummy mode (system testing) or not')
 parser.add_argument('--bnb', type=str, default='none', choices=['none', '4bit', '8bit'], help='Load model with Bits and Bytes (4bit or 8bit) or not')
+parser.add_argument('--load_peft_path', type=str, default=None, help='Path to load Peft model')
 
 # For TRAINing mode
 parser.add_argument('--model_path', type=str, default='', help='Path to model file')
@@ -54,17 +55,21 @@ if args.measure_time:
     start_time = time.time()
 
 if args.run_mode == 'train':
-    # print('Config path:', args.config)
-    print('Loading as base model:', args.base_model)
-    model = load_model(args.base_model, bnb=args.bnb)
+    if args.load_peft_path:
+        print('Loading model', args.base_model, 'with Peft adapter:', args.load_peft_path)
+        model = load_model(args.base_model, bnb=args.bnb, peft_path=args.load_peft_path)
+    else:
+        print('Loading base model:', args.base_model)
+        model = load_model(args.base_model, bnb=args.bnb)
     tokenizer = load_tokenizer(args.base_model)
-    tokenizer.pad_token = tokenizer.eos_token
     print('Model and Tokenizer loaded')
+    
     if args.pruning:
         print('Pruning model')
         model = layer_removal(model, args.pruning_layer_start, args.pruning_layer_end)
         print('Model pruned')
-    print('Training model')
+    
+    print('ReTraining model')
     train_with_hf_dataset(model, tokenizer, args.dataset_path, max_seq_length=args.block_size, precision=args.precision, technique='lora', device=device)
 
     if args.eval_after_train:
@@ -79,10 +84,15 @@ if args.run_mode == 'train':
 if args.run_mode == 'eval':
     print('Evaluating with benchmark:', args.benchmark)
     
-    print('Loading base model:', args.base_model)
-    base_model = load_model(args.base_model, bnb=args.bnb)
+    if args.load_peft_path:
+        print('Loading model', args.base_model, 'with Peft adapter:', args.load_peft_path)
+        base_model = load_model(args.base_model, bnb=args.bnb, peft_path=args.load_peft_path)
+    else:
+        print('Loading base model:', args.base_model)
+        base_model = load_model(args.base_model, bnb=args.bnb)
     tokenizer = load_tokenizer(args.base_model)
-    print('Model loaded')
+    print('Model and Tokenizer loaded')
+
     results = []
     if args.benchmark.startswith('perplexity'):
         lang = args.benchmark.split('-')[1] # 'vn' or 'en'
@@ -91,8 +101,6 @@ if args.run_mode == 'eval':
             print('Evaluating base model')
             eval_results = eval_essay_perplexity(base_model, tokenizer, device, lang=lang, instructive=args.instructive_prompt,repeat=args.repeat, measure_time=args.measure_time)
             print('Perplexity:', eval_results['perplexity'])
-            # _perplexity = f'{round(eval_results["perplexity"][0],3)} 0xC2 {round(round(eval_results["perplexity"][1],3))}'
-            # _time = f'{round(eval_results["time"][0],3)} 0xC2 {round(round(eval_results["time"][1],3))}' if args.measure_time else None
             results.append({'Modification':'Base model', 
                             'Perplexity_mean':eval_results['perplexity'][0], 'Perplexity_stddev':eval_results['perplexity'][1], 
                             'Time_mean':eval_results['time'][0], 'Time_stddev':eval_results['time'][1]})
