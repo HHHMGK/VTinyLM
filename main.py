@@ -75,8 +75,7 @@ if args.run_mode == 'train':
     if args.eval_after_train:
         print('Evaluating model')
         eval_results = eval_essay_perplexity(model, tokenizer, device, lang='vn', instructive=args.instructive_prompt,repeat=args.repeat, measure_time=args.measure_time)
-        print('Perplexity:', eval_results['perplexity'])
-        print('Time:', eval_results['time'])
+        print('Evaluation results:', eval_results)
     
     if args.save_full_model:
         model.save_pretrained(args.save_path, from_pt=True)
@@ -94,7 +93,6 @@ if args.run_mode == 'eval':
     print('Model and Tokenizer loaded')
 
     results = []
-    print(args.benchmark.split('-'))
     benchmark_type = args.benchmark.split('-')[0] # 'perplexity' or 'villm'
     
     if benchmark_type == 'perplexity':
@@ -104,7 +102,6 @@ if args.run_mode == 'eval':
         if args.eval_base:
             print('Evaluating base model')
             eval_results = eval_essay_perplexity(base_model, tokenizer, device, lang=lang, instructive=args.instructive_prompt,repeat=args.repeat, measure_time=args.measure_time)
-            print('Perplexity:', eval_results['perplexity'])
             results.append({'Modification':'Base model', **eval_results})
             
         if args.modification == 'layer_reduction':
@@ -115,7 +112,6 @@ if args.run_mode == 'eval':
                     break
                 print(f'Evaluating model with layers from {layer_start} to {layer_end} removed')
                 eval_results = eval_essay_perplexity(model, tokenizer, device, lang=lang, instructive=args.instructive_prompt,repeat=args.repeat, measure_time=args.measure_time)
-                print('Perplexity:', eval_results['perplexity'])
                 results.append({'Modification':f'Removed {layer_start} to {layer_end}', **eval_results})
                 
                 del model
