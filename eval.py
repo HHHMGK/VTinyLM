@@ -67,7 +67,7 @@ def eval_essay_perplexity(model, tokenizer, device, lang='vn', instructive=False
 
     with open(ESSAY_BENCHMARK_PATH,'r',encoding='utf-8') as f:
         ESSAY_BENCHMARKS = json.load(f)
-    prompts = ESSAY_BENCHMARKS["perplexity"]["data"][lang]
+    prompts = ESSAY_BENCHMARKS["data"][lang]
     if instructive:
         if lang=='vn':
             additional_prompt = 'Viết một đoạn văn nghị luận về vấn đề sau: '
@@ -87,7 +87,7 @@ def eval_news_perplexity(model, tokenizer, device, lang='vn', tag="Thị trườ
     perplexity = Perplexity()
     with open(NEWS_BENCHMARK_PATH,'r',encoding='utf-8') as f:
         NEWS_BENCHMARKS = json.load(f)
-    prompts = NEWS_BENCHMARKS["perplexity"]["news"][lang][tag]
+    prompts = NEWS_BENCHMARKS["data"][lang][tag]
     if instructive:
         if lang=='vn':
             prompt_format = 'Hoàn thiện bài báo về {title} thuộc thể loại {tag}'
