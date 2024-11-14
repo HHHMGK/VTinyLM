@@ -30,6 +30,7 @@ parser.add_argument('--dataset_path', type=str, default='', help='Path to datase
 parser.add_argument('--block_size', type=int, default=1024, help='Size of text chunk')
 parser.add_argument('--precision', type=str, default='fp16', choices=['fp16','fp32'], help='Precision mode')
 parser.add_argument('--eval_after_train', action=argparse.BooleanOptionalAction, help='Evaluate after training or not')
+parser.add_argument('--save_full_model', action=argparse.BooleanOptionalAction, help='Save full model or just LoRA adapter')
 parser.add_argument('--save_path', type=str, default='./trained_model', help='Path to save model')
 
 # For EVALuating mode
@@ -72,7 +73,8 @@ if args.run_mode == 'train':
         print('Perplexity:', eval_results['perplexity'])
         print('Time:', eval_results['time'])
     
-    model.save_pretrained(args.save_path, from_pt=True)
+    if args.save_full_model:
+        model.save_pretrained(args.save_path, from_pt=True)
 
 if args.run_mode == 'eval':
     print('Evaluating with benchmark:', args.benchmark)
