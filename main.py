@@ -133,8 +133,7 @@ if args.run_mode == 'eval':
 
     if args.output_console:
         print('Results:')
-        with open(args.output,'r') as f:
-            print(f.read())
+        print(results)
         
 
 if args.run_mode == 'infer':
