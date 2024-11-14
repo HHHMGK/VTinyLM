@@ -94,6 +94,7 @@ if args.run_mode == 'eval':
     print('Model and Tokenizer loaded')
 
     results = []
+    print(args.benchmark.split('-'))
     benchmark_type = args.benchmark.split('-')[0] # 'perplexity' or 'villm'
     
     if benchmark_type == 'perplexity':
