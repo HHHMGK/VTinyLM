@@ -35,7 +35,7 @@ parser.add_argument('--save_full_model', action=argparse.BooleanOptionalAction, 
 parser.add_argument('--save_path', type=str, default='./trained_model', help='Path to save model')
 
 # For EVALuating mode
-parser.add_argument('--benchmark', type=str, default='perplexity-vn', choices=['perplexity-vn','perplexity-en','villm-eval','perplexity-news-vn'], help='Benchmark to evaluate')
+parser.add_argument('--benchmark', type=str, default='perplexity-vn', choices=['perplexity-essay-vn','perplexity-essay-en','villm-eval','perplexity-news-vn'], help='Benchmark to evaluate')
 parser.add_argument('--repeat', type=int, default=1, help='Number of evaluation to repeat')
 parser.add_argument('--modification', type=str, default='layer_reduction', choices=['layer_reduction','base'], help='Model modification method')
 parser.add_argument('--eval_base', action=argparse.BooleanOptionalAction, help='Evaluate base model or not')
@@ -94,16 +94,17 @@ if args.run_mode == 'eval':
     print('Model and Tokenizer loaded')
 
     results = []
-    if args.benchmark.startswith('perplexity'):
-        lang = args.benchmark.split('-')[1] # 'vn' or 'en'
+    benchmark_type = args.benchmark.split('-')[0] # 'perplexity' or 'villm'
+    
+    if benchmark_type == 'perplexity':
+        type = args.benchmark.split('-')[1] # 'essay' or 'news'
+        lang = args.benchmark.split('-')[2] # 'vn' or 'en'
 
         if args.eval_base:
             print('Evaluating base model')
             eval_results = eval_essay_perplexity(base_model, tokenizer, device, lang=lang, instructive=args.instructive_prompt,repeat=args.repeat, measure_time=args.measure_time)
             print('Perplexity:', eval_results['perplexity'])
-            results.append({'Modification':'Base model', 
-                            'Perplexity_mean':eval_results['perplexity'][0], 'Perplexity_stddev':eval_results['perplexity'][1], 
-                            'Time_mean':eval_results['time'][0], 'Time_stddev':eval_results['time'][1]})
+            results.append({'Modification':'Base model', **eval_results})
             
         if args.modification == 'layer_reduction':
             new_model_generator = layer_reduction_model_generator(base_model, num_layers = None, step=args.layer_step)
@@ -114,17 +115,15 @@ if args.run_mode == 'eval':
                 print(f'Evaluating model with layers from {layer_start} to {layer_end} removed')
                 eval_results = eval_essay_perplexity(model, tokenizer, device, lang=lang, instructive=args.instructive_prompt,repeat=args.repeat, measure_time=args.measure_time)
                 print('Perplexity:', eval_results['perplexity'])
-                results.append({'Modification':f'Removed {layer_start} to {layer_end}', 
-                            'Perplexity_mean':eval_results['perplexity'][0], 'Perplexity_stddev':eval_results['perplexity'][1], 
-                            'Time_mean':eval_results['time'][0], 'Time_stddev':eval_results['time'][1]})
+                results.append({'Modification':f'Removed {layer_start} to {layer_end}', **eval_results})
                 
                 del model
                 gc.collect()
                 torch.cuda.empty_cache()
-        
-        del base_model
-        gc.collect()
-        torch.cuda.empty_cache()
+    
+    del base_model
+    gc.collect()
+    torch.cuda.empty_cache()
 
     with open(args.output,'w') as f:
         header = ['Modification', 'Perplexity_mean', 'Perplexity_stddev', 'Time_mean', 'Time_stddev']
