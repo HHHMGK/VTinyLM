@@ -4,8 +4,8 @@ import torch
 import numpy as np
 from metrics import Perplexity
 
-ESSAY_BENCHMARK_PATH = str(Path('datasets\\benchmarks\\perplexity\\essay.json').absolute())
-NEWS_BENCHMARK_PATH = str(Path('datasets\\benchmarks\\perplexity\\news.json').absolute())
+ESSAY_BENCHMARK_PATH = str(Path('./datasets/benchmarks/perplexity/essay.json').absolute())
+NEWS_BENCHMARK_PATH = str(Path('./datasets/benchmarks/perplexity/news.json').absolute())
 
 def eval_perplexity(model, tokenizer, prompts, device, repeat=1, measure_time=False):
     """
