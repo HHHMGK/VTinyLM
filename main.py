@@ -35,7 +35,7 @@ parser.add_argument('--save_full_model', action=argparse.BooleanOptionalAction, 
 parser.add_argument('--save_path', type=str, default='./trained_model', help='Path to save model')
 
 # For EVALuating mode
-parser.add_argument('--benchmark', type=str, default='perplexity-vn', choices=['perplexity-vn','perplexity-en','villm-eval'], help='Benchmark to evaluate')
+parser.add_argument('--benchmark', type=str, default='perplexity-vn', choices=['perplexity-vn','perplexity-en','villm-eval','perplexity-news-vn'], help='Benchmark to evaluate')
 parser.add_argument('--repeat', type=int, default=1, help='Number of evaluation to repeat')
 parser.add_argument('--modification', type=str, default='layer_reduction', choices=['layer_reduction','base'], help='Model modification method')
 parser.add_argument('--eval_base', action=argparse.BooleanOptionalAction, help='Evaluate base model or not')
