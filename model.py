@@ -66,3 +66,30 @@ def layer_reduction_model_generator(model, num_layers = None, step = None):
 
     return None
     
+def ranking_layerss_importance(model, intput_data):
+    model.eval()
+    criterion = nn.CrossEntropyLoss()
+    input_ids = intput_data['input_ids']
+    labels = intput_data['labels']
+    
+    outputs = model(input_ids)
+    logits = outputs.logits
+    loss = criterion(logits.view(-1, logits.size(-1)), labels.view(-1))
+    
+    model.zero_grad()
+    loss.backward()
+    
+    # for name, param in model.named_parameters():
+    #     if param.requires_grad and param.grad is not None:
+    #         grads.append((name, param.grad.clone()))
+    layer_importance = []
+    for layer in model.transformer.blocks:
+        importance = []
+        for name, param in layer.named_parameters():
+            if param.requires_grad and param.grad is not None:
+                grad = param.grad.clone()
+                # for each weight, multiply it by the gradient
+                importance.append((grad * param).abs().mean().item())
+        layer_importance.append(sum(importance) / len(importance))
+
+    return layer_importance
