@@ -5,7 +5,7 @@ import json, csv
 from train import train_with_hf_dataset
 from model import load_model, load_tokenizer
 from eval import eval_essay_perplexity
-from .prune.prune import prune_model, estimate_importance, serial_pruning_model_generator
+from prune.prune import prune_model, estimate_importance, serial_pruning_model_generator
 
 # Take arg from command line
 parser = argparse.ArgumentParser(description='')
