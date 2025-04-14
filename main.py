@@ -3,7 +3,7 @@ import os, gc, time
 import torch
 import json, csv
 from train import train_with_hf_dataset
-from model import load_model, load_tokenizer, layer_reduction_model_generator, layer_removal
+from model import load_model, load_tokenizer
 from eval import eval_essay_perplexity
 from .prune.prune import prune_model, estimate_importance
 
