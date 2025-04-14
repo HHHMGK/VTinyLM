@@ -59,7 +59,7 @@ def ranking_by_magnitude(model, norm='l1', avg=False, target=None):
     return importance_list
 
 
-def rank_by_activation(model, batch_input, avg=False):
+def ranking_by_activation(model, batch_input, avg=False):
     model.eval()
     # importance_list = [0.0] * len(model.transformer.blocks)
     activations = {}

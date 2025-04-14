@@ -1,5 +1,4 @@
-from .methods import ranking_by_grads, ranking_by_magnitude, ranking
-_by_activation
+from .methods import ranking_by_grads, ranking_by_magnitude, ranking_by_activation
 import copy
 
 def estimate_importance(model, method='magnitude', input_data=None, avg=False, 
@@ -18,15 +17,13 @@ def estimate_importance(model, method='magnitude', input_data=None, avg=False,
     elif method == 'activation':
         if input_data is None:
             raise ValueError("Input data is required for activation-based importance estimation")
-        return ranking
-        _by_activation(model, input_data, avg=avg)
+        return ranking_by_activation(model, input_data, avg=avg)
     elif method == 'combine':
         if input_data is None:
             raise ValueError("Input data is required for gradient-based and activation-based importance estimation")
         grads = ranking_by_grads(model, input_data, avg=avg, T_order=T_order, batch_size=batch_size)
         mag = ranking_by_magnitude(model, norm=norm, avg=avg, target=target)
-        act = ranking
-        _by_activation(model, input_data, avg=avg)
+        act = ranking_by_activation(model, input_data, avg=avg)
         return [(g + m + a) / 3 for g, m, a in zip(grads, mag, act)]
     else:
         raise ValueError(f"Unknown method: {method}. Choose from 'magnitude', 'grads', or 'activation'")

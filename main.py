@@ -5,7 +5,7 @@ import json, csv
 from train import train_with_hf_dataset
 from model import load_model, load_tokenizer
 from eval import eval_essay_perplexity
-from .prune.prune import prune_model, estimate_importance
+from .prune.prune import prune_model, estimate_importance, serial_pruning_model_generator
 
 # Take arg from command line
 parser = argparse.ArgumentParser(description='')
@@ -49,6 +49,24 @@ parser.add_argument('--pruning_mag_norm', type=str, default='l1', choices=['l1',
 parser.add_argument('--pruning_grad_T_order', type=int, default=1, help='T order for pruning')
 parser.add_argument('--pruning_prefix', type=str, default=None, help='Prefix for pruning')
 
+
+def write_result(results, output_file, benchmark_type='perplexity', output_console=False):
+    """
+    Write the results to a CSV file.
+    """
+    if benchmark_type == 'perplexity':
+        header = ['Modification', 'Perplexity_mean', 'Perplexity_stddev', 'Time_mean', 'Time_stddev']
+
+    with open(output_file, 'w', newline='') as f:
+        csv_writer = csv.DictWriter(f, fieldnames=header)
+        csv_writer.writeheader()
+        csv_writer.writerows(results)
+    
+    if output_console:
+        print('Results written to', output_file)
+        print(header)
+        print(results)
+
 args = parser.parse_args()
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -66,11 +84,6 @@ if args.run_mode == 'train':
         model = load_model(args.base_model, bnb=args.bnb)
     tokenizer = load_tokenizer(args.base_model)
     print('Model and Tokenizer loaded')
-    
-    if args.pruning:
-        print('Pruning model')
-        model = layer_removal(model, args.pruning_layer_start, args.pruning_layer_end)
-        print('Model pruned')
     
     print('ReTraining model')
     train_with_hf_dataset(model, tokenizer, args.dataset_path, max_seq_length=args.block_size, precision=args.precision, technique='lora', device=device)
@@ -108,7 +121,7 @@ if args.run_mode == 'eval':
             results.append({'Modification':'Base model', **eval_results})
             
         if args.modification == 'layer_reduction':
-            new_model_generator = layer_reduction_model_generator(base_model, num_layers = None, step=args.layer_step)
+            new_model_generator = serial_pruning_model_generator(base_model, num_layers = None, step=args.layer_step)
             while True:
                 model, layer_start, layer_end = next(new_model_generator, (None, None, None))
                 if model is None:
@@ -186,20 +199,3 @@ if args.run_mode == 'pruning':
     
 # if args.measure_time:
 #     print('Time elapsed:', time.time()-start_time)
-
-def write_result(results, output_file, benchmark_type='perplexity', output_console=False):
-    """
-    Write the results to a CSV file.
-    """
-    if benchmark_type == 'perplexity':
-        header = ['Modification', 'Perplexity_mean', 'Perplexity_stddev', 'Time_mean', 'Time_stddev']
-
-    with open(output_file, 'w', newline='') as f:
-        csv_writer = csv.DictWriter(f, fieldnames=header)
-        csv_writer.writeheader()
-        csv_writer.writerows(results)
-    
-    if output_console:
-        print('Results written to', output_file)
-        print(header)
-        print(results)

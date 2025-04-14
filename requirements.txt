@@ -5,6 +5,6 @@ einops
 torchviz
 evaluate
 trl
-peft
+peft==0.10.0
 bitsandbytes
 triton # for phogpt ?
