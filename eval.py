@@ -96,3 +96,4 @@ def eval_news_perplexity(model, tokenizer, device, lang='vn', tag="Thị trườ
         prompts = [prompt_format.format(title=prompt, tag=tag) for prompt in prompts]
     
     return eval_perplexity(model, tokenizer, prompts, device, repeat, measure_time)
+

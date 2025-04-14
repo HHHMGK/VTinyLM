@@ -5,10 +5,11 @@ import json, csv
 from train import train_with_hf_dataset
 from model import load_model, load_tokenizer, layer_reduction_model_generator, layer_removal
 from eval import eval_essay_perplexity
+from .prune.prune import prune_model, estimate_importance
 
 # Take arg from command line
 parser = argparse.ArgumentParser(description='')
-parser.add_argument('run_mode', type=str, default='train', choices=['train','eval','infer'], help='Mode run mode')
+parser.add_argument('run_mode', type=str, default='train', choices=['train','eval','infer','prune'], help='Mode run mode')
 parser.add_argument('--config', type=str, default='config.json', help='Path to config file')
 # parser.add_argument('--verbose', type=int, default=0, choices=[0,1,2], help='Verbose mode, 0 = silent, 1 = print log, 2 = print all')
 
@@ -24,9 +25,6 @@ parser.add_argument('--load_peft_path', type=str, default=None, help='Path to lo
 
 # For TRAINing mode
 parser.add_argument('--model_path', type=str, default='', help='Path to model file')
-parser.add_argument('--pruning', action=argparse.BooleanOptionalAction, help='Pruning model or not')
-parser.add_argument('--pruning_layer_start', type=int, default=0, help='Pruning start layer')
-parser.add_argument('--pruning_layer_end', type=int, default=0, help='Pruning end layer')
 parser.add_argument('--dataset_path', type=str, default='', help='Path to dataset file')
 parser.add_argument('--block_size', type=int, default=1024, help='Size of text chunk')
 parser.add_argument('--precision', type=str, default='fp16', choices=['fp16','fp32'], help='Precision mode')
@@ -41,10 +39,15 @@ parser.add_argument('--modification', type=str, default='layer_reduction', choic
 parser.add_argument('--eval_base', action=argparse.BooleanOptionalAction, help='Evaluate base model or not')
 parser.add_argument('--layer_step', type=int, default=0, help='Step for layer modification')
 
-# For INFERing mode
-parser.add_argument('--prompt', type=str, default='', help='Input prompt for inference')
-parser.add_argument('--file', type=str, default='', help='Input file for inference')
-# Import config from config.json
+# For Pruing mode
+parser.add_argument('--pruning_method', type=str, default='magnitude', choices=['magnitude','gradient','activation','combination'], help='Pruning method')
+parser.add_argument('--pruning_rate', type=float, default=0.2, help='Pruning rate')
+parser.add_argument('--pruning_target', type=str, default='', help='Pruning target')
+parser.add_argument('--pruning_batch_size', type=int, default=0, help='Batch size for pruning')
+parser.add_argument('--pruning_avg', action=argparse.BooleanOptionalAction, help='Average pruning or not')
+parser.add_argument('--pruning_mag_norm', type=str, default='l1', choices=['l1','l2'], help='Norm for pruning')
+parser.add_argument('--pruning_grad_T_order', type=int, default=1, help='T order for pruning')
+parser.add_argument('--pruning_prefix', type=str, default=None, help='Prefix for pruning')
 
 args = parser.parse_args()
 
@@ -91,7 +94,7 @@ if args.run_mode == 'eval':
         base_model = load_model(args.base_model, bnb=args.bnb)
     tokenizer = load_tokenizer(args.base_model)
     print('Model and Tokenizer loaded')
-
+     
     results = []
     benchmark_type = args.benchmark.split('-')[0] # 'perplexity' or 'villm'
     
@@ -117,35 +120,86 @@ if args.run_mode == 'eval':
                 del model
                 gc.collect()
                 torch.cuda.empty_cache()
+
+        write_result(results, args.output, benchmark_type=benchmark_type, output_console=args.output_console)
     
     del base_model
     gc.collect()
     torch.cuda.empty_cache()
 
-    with open(args.output,'w') as f:
+if args.run_mode == 'pruning':
+    print('Evaluating with benchmark:', args.benchmark)
+    
+    if args.load_peft_path is not None:
+        print('Loading model', args.base_model, 'with Peft adapter:', args.load_peft_path)
+        base_model = load_model(args.base_model, bnb=args.bnb, peft_path=args.load_peft_path)
+    else:
+        print('Loading base model:', args.base_model)
+        base_model = load_model(args.base_model, bnb=args.bnb)
+    tokenizer = load_tokenizer(args.base_model)
+    print('Model and Tokenizer loaded')
+     
+    results = []
+    benchmark_type = args.benchmark.split('-')[0] # 'perplexity' or 'villm'
+    
+    if benchmark_type == 'perplexity':
+        type = args.benchmark.split('-')[1] # 'essay' or 'news'
+        lang = args.benchmark.split('-')[2] # 'vn' or 'en'
+
+        if args.eval_base:
+            print('Evaluating base model')
+            eval_results = eval_essay_perplexity(base_model, tokenizer, device, lang=lang, instructive=args.instructive_prompt,repeat=args.repeat, measure_time=args.measure_time)
+            results.append({'Modification':'Base model', **eval_results})
+
+        #PRUNING
+        print('Pruning model')
+        ranking = estimate_importance(base_model, tokenizer, args.pruning_method, args.pruning_batch_size, args.pruning_avg, args.pruning_grad_T_order, args.pruning_mag_norm, args.pruning_target, args.pruning_prefix)   
+        print('Importance estimated')    
+        pruned_model = prune_model(base_model, ranking, args.pruning_rate, args.pruning_target, model_type='phogpt')
+        print('Model pruned')
+        eval_results = eval_essay_perplexity(pruned_model, tokenizer, device, lang=lang, instructive=args.instructive_prompt,repeat=args.repeat, measure_time=args.measure_time)
+        results.append({'Modification':f'Pruned by {args.pruning_method} method', **eval_results})
+        
+        del model
+        gc.collect()
+        torch.cuda.empty_cache()
+
+        write_result(results, args.output, benchmark_type=benchmark_type, output_console=args.output_console)
+    
+    del base_model
+    gc.collect()
+    torch.cuda.empty_cache()
+
+# if args.run_mode == 'infer':
+#     print('Infering')
+    
+#     input = []
+#     if args.prompt:
+#         input.append(args.prompt)
+
+#     if args.file:
+#         with open(args.file,'r') as     f:
+#             input.extend(f.readlines())
+    
+#     model = load_model(args.base_model, bnb=args.bnb)
+#     tokenizer = load_tokenizer(args.base_model)
+    
+# if args.measure_time:
+#     print('Time elapsed:', time.time()-start_time)
+
+def write_result(results, output_file, benchmark_type='perplexity', output_console=False):
+    """
+    Write the results to a CSV file.
+    """
+    if benchmark_type == 'perplexity':
         header = ['Modification', 'Perplexity_mean', 'Perplexity_stddev', 'Time_mean', 'Time_stddev']
+
+    with open(output_file, 'w', newline='') as f:
         csv_writer = csv.DictWriter(f, fieldnames=header)
         csv_writer.writeheader()
         csv_writer.writerows(results)
-
-    if args.output_console:
-        print('Results:')
+    
+    if output_console:
+        print('Results written to', output_file)
+        print(header)
         print(results)
-        
-
-if args.run_mode == 'infer':
-    print('Infering')
-    
-    input = []
-    if args.prompt:
-        input.append(args.prompt)
-
-    if args.file:
-        with open(args.file,'r') as     f:
-            input.extend(f.readlines())
-    
-    model = load_model(args.base_model, bnb=args.bnb)
-    tokenizer = load_tokenizer(args.base_model)
-    
-if args.measure_time:
-    print('Time elapsed:', time.time()-start_time)
