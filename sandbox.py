@@ -1,14 +1,54 @@
-import csv
+import train, os
+import pandas as pd
+from datasets import Dataset
+from transformers import AutoTokenizer
+from trl import DataCollatorForCompletionOnlyLM
 
-reader = csv.reader(open("C:\\Users\\HUY\\Downloads\\results.csv"))
-lines = list(reader)
-for line in lines:
-    v = line[1:]
-    print(v)
-    v_mean = sum(v)/len(v)
-    v_var = sum([(x-v_mean)**2 for x in v])/(len(v)-1)
-    v_std = v_var**0.5
-    line.extend([v_mean, v_var, v_std, f'{v_mean}±{v_std}'])
+def get_hf_dataset(file_path = None):
+    if file_path is None or not os.path.exists(file_path):
+        print('File',file_path,'not found. Loading dummy instead.')
+        df = pd.DataFrame({'text': ['This is a dummy text']})
+    else:
+        print('Loading dataset from',file_path)
+        if file_path.endswith('.csv'):
+            df = pd.read_csv(file_path, encoding='utf-8')
+        elif file_path.endswith('.json'):
+            df = pd.read_json(file_path, encoding='utf-8',orient='records')
+    
+    return Dataset.from_pandas(df)
 
-writer = csv.writer(open('results.csv', 'w'))
-writer.writerows(lines)
+
+INSTRUCTION_TEMPLATE = "### Câu hỏi:"
+RESPONSE_TEMPLATE = "\n### Trả lời:"
+
+def format_instruction(sample):
+    # return  [f"""### Câu hỏi: 
+    #             Hoàn thiện bài báo về {sample['title']} thuộc thể loại {sample['category']}\n
+    #             ### Trả lời:
+    #             {sample['content']}
+    #             """]
+    # print(sample)
+    formatted = []
+    for i in range(len(sample)):
+        formatted.append(f"""### Câu hỏi: 
+                            Hoàn thiện bài báo về {sample[i]['title']} thuộc thể loại {sample[i]['category']}
+                            \n### Trả lời:
+                            {sample[i]['content']}
+                            """)
+    return formatted    
+
+tokenizer = AutoTokenizer.from_pretrained("C:\\Users\\HUY\\Downloads\\phoGPT-4B-Chat", use_remote_code=True) 
+
+datacollator = DataCollatorForCompletionOnlyLM(
+    instruction_template=INSTRUCTION_TEMPLATE,
+    response_template=RESPONSE_TEMPLATE,
+    tokenizer=tokenizer
+)  
+
+dataset = get_hf_dataset('datasets\\vneconomy\\vneconomy.json')
+
+
+sample_batch = [dataset[i] for i in range(3)]
+sample_batch = tokenizer(sample_batch)
+print
+print(sample_batch)
