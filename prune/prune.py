@@ -1,4 +1,4 @@
-from methods import ranking_by_grads, ranking_by_magnitude, ranking_by_activation
+from .methods import ranking_by_grads, ranking_by_magnitude, ranking_by_activation
 import copy
 
 def get_transformer_sequential(model):
