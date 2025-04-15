@@ -1,0 +1,3 @@
+Modification,Perplexity_mean,Perplexity_stddev,Time_mean,Time_stddev
+Base model,12.6773828125,0,1.3863680362701416,0
+Pruned by combine method,168.80046875,0,0.7975270748138428,0

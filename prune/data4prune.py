@@ -38,7 +38,7 @@ def get_examples(dataset, tokenizer, n_samples, seq_len = 64, rand=False):
                 i = random.randint(0, len(traindata) - 1)
                 if i in history:
                     continue
-                tokenized_sample = tokenizer(traindata[i]['text'], return_tensors='pt')
+                tokenized_sample = tokenizer(traindata[i]['text'], return_tensors='pt', truncation=True)
                 if tokenized_sample.input_ids.shape[1] >= seq_len:
                     history.append(i)
                     break

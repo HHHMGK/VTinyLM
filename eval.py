@@ -21,21 +21,19 @@ def eval_perplexity(model, tokenizer, prompts, device, repeat=1, measure_time=Fa
     """
     perplexity = Perplexity()
         
-    model = model.to(device)
-    model.eval()
-    perplexity_score = []
-    if measure_time:
-        timing = []
-        for i in range(repeat):
-            start = time.time()
-            perplexity_score.append(perplexity._compute(prompts, model, tokenizer, device)['mean_perplexity'])
-            timing.append(time.time()-start)
-    else:
-        for i in range(repeat):
-            perplexity_score.append(perplexity._compute(prompts, model, tokenizer, device)['mean_perplexity'])
-    if device.type == 'cuda':
-        model.to('cpu')
-        torch.cuda.empty_cache()
+    # model = model.to(device)
+    # model.eval()
+    with torch.no_grad():
+        perplexity_score = []
+        if measure_time:
+            timing = []
+            for i in range(repeat):
+                start = time.time()
+                perplexity_score.append(perplexity._compute(prompts, model, tokenizer, device)['mean_perplexity'])
+                timing.append(time.time()-start)
+        else:
+            for i in range(repeat):
+                perplexity_score.append(perplexity._compute(prompts, model, tokenizer, device)['mean_perplexity'])
 
     perplexity_mean = perplexity_score[0]
     perplexity_stddev = 0

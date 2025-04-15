@@ -13,7 +13,7 @@ def get_transformer_sequential(model):
         raise ValueError("Model does not have transformer or model attribute.")
     
 def estimate_importance(model, method='magnitude', prune_data=None, avg=False, 
-                        norm='l1', target=None, T_order=1, batch_size=32):
+                        norm='l1', target=None, T_order=1, batch_size=16):
     """
     Estimate the importance of model layers using different methods.
     """
@@ -21,18 +21,22 @@ def estimate_importance(model, method='magnitude', prune_data=None, avg=False,
     if method == 'magnitude' or method == 'combine':
         r = ranking_by_magnitude(model, norm=norm, avg=avg, target=target)
         rankings = [rankings[i] + r[i] for i in range(len(rankings))]
+        print("Ranking by magnitude: ",rankings)
     
     if method == 'grads' or method == 'combine':
         r = ranking_by_grads(model, prune_data, avg=avg, T_order=T_order, batch_size=batch_size)
         rankings = [rankings[i] + r[i] for i in range(len(rankings))]
+        print("Ranking by grads: ",rankings)
     
     if method == 'activation' or method == 'combine':
         r = ranking_by_activation(model, prune_data, avg=avg)
         rankings = [rankings[i] + r[i] for i in range(len(rankings))]
+        print("Ranking by activation: ",rankings)
     
     if method == 'combine':
         rankings = [rankings[i] / 3 for i in range(len(rankings))]
-        return rankings
+    
+    return rankings
 
 def prune_model(model, rankings, pruning_rate=0.2, targets=[]):
     """
@@ -42,6 +46,7 @@ def prune_model(model, rankings, pruning_rate=0.2, targets=[]):
     layers = range(len(rankings))
     layers_to_prune = sorted(layers, key=rankings.__getitem__)[:num_layers]
     layers_to_prune.sort(reverse=True) # Sort in descending order for safe indexing later in removal (remove from the end)
+    print(f"Layers to prune: {layers_to_prune}")
     # Prune the model
     sequential = get_transformer_sequential(model)
     for layer in layers_to_prune:
@@ -54,7 +59,7 @@ def prune_model(model, rankings, pruning_rate=0.2, targets=[]):
             #         sequential[layer].remove_module(target)
     
     
-    return model
+    # return model
 
 def serial_pruning_model_generator(model, num_layers = None, step = None):
     """

@@ -1,5 +1,6 @@
 import torch
 import gc
+from tqdm import tqdm
 
 def ranking_by_grads(model, input, avg=False, T_order=1, batch_size=0):
     model.eval()
@@ -10,9 +11,9 @@ def ranking_by_grads(model, input, avg=False, T_order=1, batch_size=0):
     num_steps = (input_size + batch_size - 1) // batch_size
     importance_list = [0.0] * len(model.transformer.blocks)
 
-    for i in range(0, input_size, batch_size):
-        batch_input = input[i:min(i+batch_size,input_size)]  # Process a smaller batch
-        # print('doing batch', i,i+batch_size)
+    for i in tqdm(range(0, input_size, batch_size), desc="Processing batches"):
+        batch_input = input[i:min(i+batch_size, input_size)]  # Process a smaller batch
+        # print('doing batch', i, i+batch_size)
         # print('batch shape', batch_input.shape)
         loss = model(batch_input, labels=batch_input).loss
         # loss = loss / input_size  # Normalize the loss
@@ -63,12 +64,9 @@ def ranking_by_activation(model, batch_input, avg=False):
     model.eval()
     # importance_list = [0.0] * len(model.transformer.blocks)
     activations = {}
-    sample_output = None
     hooks = []
     def get_activation(name):
         def hook(module, input, output):
-            if output is not None:
-                sample_output = output
             act_val = output[0].detach().abs().mean().item()
             if name in activations:
                 activations[name].append(act_val)
@@ -101,7 +99,7 @@ def ranking_by_activation(model, batch_input, avg=False):
         importance_list.append(layer_importance - prev)
         prev = layer_importance
 
-    print(sample_output)
-    for k,v in activations.items():
-        print(k,v)
+    # print(sample_output)
+    # for k,v in activations.items():
+    #     print(k,v)
     return importance_list

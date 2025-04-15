@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import copy
 
-def load_model(model_path, bnb='none', peft_path=None):
+def load_model(model_path, bnb='none', peft_path=None, device='cuda'):
     bnb_config = None
     if bnb == '4bit':
         bnb_config = BitsAndBytesConfig(
@@ -18,7 +18,7 @@ def load_model(model_path, bnb='none', peft_path=None):
         bnb_config = BitsAndBytesConfig(
             load_in_8bit=True
         )
-    model = AutoModelForCausalLM.from_pretrained(model_path, trust_remote_code=True, quantization_config=bnb_config)
+    model = AutoModelForCausalLM.from_pretrained(model_path, trust_remote_code=True, quantization_config=bnb_config, torch_dtype=torch.float16).to(device)
     if peft_path is not None:
         model = PeftModel.from_pretrained(model, peft_path)
         model = model.merge_and_unload()

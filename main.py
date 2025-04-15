@@ -42,13 +42,13 @@ parser.add_argument('--eval_base', action=argparse.BooleanOptionalAction, help='
 parser.add_argument('--layer_step', type=int, default=0, help='Step for layer modification')
 
 # For Pruing mode
-parser.add_argument('--pruning_method', type=str, default='magnitude', choices=['magnitude','gradient','activation','combination'], help='Pruning method')
+parser.add_argument('--pruning_method', type=str, default='magnitude', choices=['magnitude','gradient','activation','combine'], help='Pruning method')
 parser.add_argument('--pruning_rate', type=float, default=0.2, help='Pruning rate')
 parser.add_argument('--pruning_target', type=str, default='', help='Pruning target')
 parser.add_argument('--pruning_data', type=str, default='c4', help='Data for estimating importance')
 parser.add_argument('--pruning_n_samples', type=int, default=1000, help='Number of samples for estimating importance')
 parser.add_argument('--pruning_rand_data', action=argparse.BooleanOptionalAction, help='Random data for estimating importance')
-parser.add_argument('--pruning_batch_size', type=int, default=0, help='Batch size for pruning')
+parser.add_argument('--pruning_batch_size', type=int, default=32, help='Batch size for pruning')
 parser.add_argument('--pruning_avg', action=argparse.BooleanOptionalAction, help='Average pruning or not')
 parser.add_argument('--pruning_mag_norm', type=str, default='l1', choices=['l1','l2'], help='Norm for pruning')
 parser.add_argument('--pruning_grad_T_order', type=int, default=1, help='T order for pruning')
@@ -82,10 +82,10 @@ if args.measure_time:
 if args.run_mode == 'train':
     if args.load_peft_path is not None:
         print('Loading model', args.base_model, 'with Peft adapter:', args.load_peft_path)
-        model = load_model(args.base_model, bnb=args.bnb, peft_path=args.load_peft_path)
+        model = load_model(args.base_model, bnb=args.bnb, peft_path=args.load_peft_path, device=device)
     else:
         print('Loading base model:', args.base_model)
-        model = load_model(args.base_model, bnb=args.bnb)
+        model = load_model(args.base_model, bnb=args.bnb, device=device)
     tokenizer = load_tokenizer(args.base_model)
     print('Model and Tokenizer loaded')
     
@@ -105,10 +105,10 @@ if args.run_mode == 'eval':
     
     if args.load_peft_path is not None:
         print('Loading model', args.base_model, 'with Peft adapter:', args.load_peft_path)
-        base_model = load_model(args.base_model, bnb=args.bnb, peft_path=args.load_peft_path)
+        base_model = load_model(args.base_model, bnb=args.bnb, peft_path=args.load_peft_path, device=device)
     else:
         print('Loading base model:', args.base_model)
-        base_model = load_model(args.base_model, bnb=args.bnb)
+        base_model = load_model(args.base_model, bnb=args.bnb, device=device)
     tokenizer = load_tokenizer(args.base_model)
     print('Model and Tokenizer loaded')
      
@@ -145,14 +145,8 @@ if args.run_mode == 'eval':
     torch.cuda.empty_cache()
 
 if args.run_mode == 'prune':
-    print('Evaluating with benchmark:', args.benchmark)
-    
-    if args.load_peft_path is not None:
-        print('Loading model', args.base_model, 'with Peft adapter:', args.load_peft_path)
-        base_model = load_model(args.base_model, bnb=args.bnb, peft_path=args.load_peft_path)
-    else:
-        print('Loading base model:', args.base_model)
-        base_model = load_model(args.base_model, bnb=args.bnb)
+    print(f'Loading {"model " + args.base_model + " with Peft adapter: " + args.load_peft_path if args.load_peft_path else "base model: " + args.base_model}')
+    base_model = load_model(args.base_model, bnb=args.bnb, peft_path=args.load_peft_path, device=device)
     tokenizer = load_tokenizer(args.base_model)
     print('Model and Tokenizer loaded')
      
@@ -165,21 +159,28 @@ if args.run_mode == 'prune':
 
         if args.eval_base:
             print('Evaluating base model')
+
             eval_results = eval_essay_perplexity(base_model, tokenizer, device, lang=lang, instructive=args.instructive_prompt,repeat=args.repeat, measure_time=args.measure_time)
+
             results.append({'Modification':'Base model', **eval_results})
 
         #PRUNING
         print('Fetching examples for pruning')
-        prune_data = get_examples(dataset=args.pruning_data, tokenizer=tokenizer, rand=args.pruning_rand_data, n_samples=args.pruning_n_samples)
-        print('Pruning model')
+        if args.pruning_method in ['gradient','activation','combine']:
+            prune_data = get_examples(dataset=args.pruning_data, tokenizer=tokenizer, rand=args.pruning_rand_data, n_samples=args.pruning_n_samples).to(device)
+        else:
+            prune_data = None
+
+        print('Pruning model with method:', args.pruning_method)
         ranking = estimate_importance(base_model, method=args.pruning_method, prune_data=prune_data, avg=args.pruning_avg,norm=args.pruning_mag_norm, target=args.pruning_target, T_order=args.pruning_grad_T_order, batch_size=args.pruning_batch_size)
         print('Importance estimated with layers rankings:', ranking)    
-        pruned_model = prune_model(base_model, ranking, args.pruning_rate, args.pruning_target)
+        # pruned_model = 
+        prune_model(base_model, ranking, args.pruning_rate, args.pruning_target)
         print('Model pruned')
-        eval_results = eval_essay_perplexity(pruned_model, tokenizer, device, lang=lang, instructive=args.instructive_prompt,repeat=args.repeat, measure_time=args.measure_time)
+        eval_results = eval_essay_perplexity(base_model, tokenizer, device, lang=lang, instructive=args.instructive_prompt,repeat=args.repeat, measure_time=args.measure_time)
         results.append({'Modification':f'Pruned by {args.pruning_method} method', **eval_results})
         
-        del model
+        # del pruned_model
         gc.collect()
         torch.cuda.empty_cache()
 
