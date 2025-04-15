@@ -22,6 +22,7 @@ def load_model(model_path, bnb='none', peft_path=None):
     if peft_path is not None:
         model = PeftModel.from_pretrained(model, peft_path)
         model = model.merge_and_unload()
+    add_modeltype(model, model_path)
     return model
 
 def load_tokenizer(model_path):
@@ -29,4 +30,12 @@ def load_tokenizer(model_path):
     tokenizer.pad_token = tokenizer.eos_token
     return tokenizer
 
-
+def add_modeltype(model, name):
+    """
+    Add a name to the model.
+    """
+    if name == 'vinai/PhoGPT-4B-Chat':
+        name = 'phogpt'
+    elif name == 'meta-llama/Llama-3.2-3B-Instruct':
+        name = 'llama'
+    setattr(model, 'model_type', name)

@@ -1,34 +1,40 @@
-from .methods import ranking_by_grads, ranking_by_magnitude, ranking_by_activation
+from methods import ranking_by_grads, ranking_by_magnitude, ranking_by_activation
 import copy
 
-def estimate_importance(model, method='magnitude', input_data=None, avg=False, 
-                        norm='l1', target=None, T_order=1, batch_size=0):
+def get_transformer_sequential(model):
+    """
+    Get the transformer sequential layers of the model.
+    """
+    if (hasattr(model, 'model_type') and model.model_type == 'phogpt') or hasattr(model, 'transformer'):
+        return model.transformer.blocks
+    elif (hasattr(model, 'model_type') and model.model_type == 'llama') or hasattr(model, 'model'):
+        return model.model.layers
+    else:
+        raise ValueError("Model does not have transformer or model attribute.")
+    
+def estimate_importance(model, method='magnitude', prune_data=None, avg=False, 
+                        norm='l1', target=None, T_order=1, batch_size=32):
     """
     Estimate the importance of model layers using different methods.
     """
-    if method == 'magnitude':
-        return ranking_by_magnitude(model, norm=norm, avg=avg, target=target)
+    rankings = [0] * len(get_transformer_sequential(model))
+    if method == 'magnitude' or method == 'combine':
+        r = ranking_by_magnitude(model, norm=norm, avg=avg, target=target)
+        rankings = [rankings[i] + r[i] for i in range(len(rankings))]
     
-    elif method == 'grads':
-        if input_data is None:
-            raise ValueError("Input data is required for gradient-based importance estimation")
-        return ranking_by_grads(model, input_data, avg=avg, T_order=T_order, batch_size=batch_size)
+    if method == 'grads' or method == 'combine':
+        r = ranking_by_grads(model, prune_data, avg=avg, T_order=T_order, batch_size=batch_size)
+        rankings = [rankings[i] + r[i] for i in range(len(rankings))]
     
-    elif method == 'activation':
-        if input_data is None:
-            raise ValueError("Input data is required for activation-based importance estimation")
-        return ranking_by_activation(model, input_data, avg=avg)
-    elif method == 'combine':
-        if input_data is None:
-            raise ValueError("Input data is required for gradient-based and activation-based importance estimation")
-        grads = ranking_by_grads(model, input_data, avg=avg, T_order=T_order, batch_size=batch_size)
-        mag = ranking_by_magnitude(model, norm=norm, avg=avg, target=target)
-        act = ranking_by_activation(model, input_data, avg=avg)
-        return [(g + m + a) / 3 for g, m, a in zip(grads, mag, act)]
-    else:
-        raise ValueError(f"Unknown method: {method}. Choose from 'magnitude', 'grads', or 'activation'")
+    if method == 'activation' or method == 'combine':
+        r = ranking_by_activation(model, prune_data, avg=avg)
+        rankings = [rankings[i] + r[i] for i in range(len(rankings))]
+    
+    if method == 'combine':
+        rankings = [rankings[i] / 3 for i in range(len(rankings))]
+        return rankings
 
-def prune_model(model, rankings, pruning_rate=0.2, targets=[], model_type='phogpt'):
+def prune_model(model, rankings, pruning_rate=0.2, targets=[]):
     """
     Prune the targets module of the model based on the given rankings and pruning rate.
     """
@@ -37,11 +43,7 @@ def prune_model(model, rankings, pruning_rate=0.2, targets=[], model_type='phogp
     layers_to_prune = sorted(layers, key=rankings.__getitem__)[:num_layers]
     layers_to_prune.sort(reverse=True) # Sort in descending order for safe indexing later in removal (remove from the end)
     # Prune the model
-    sequential = []
-    if model_type == 'phogpt':
-        sequential = model.transformer.blocks
-    elif model_type == 'llama':
-        sequential = model.model.layers
+    sequential = get_transformer_sequential(model)
     for layer in layers_to_prune:
         if not targets:
             del sequential[layer]
@@ -60,7 +62,8 @@ def serial_pruning_model_generator(model, num_layers = None, step = None):
     """
     if num_layers is None:
         num_layers = [1,2,4,8]
-    max_len = len(model.transformer.blocks)
+    sequential = get_transformer_sequential(model)
+    max_len = len(sequential)
     for n in num_layers:
         i = 0
         if step is None:
@@ -68,19 +71,19 @@ def serial_pruning_model_generator(model, num_layers = None, step = None):
         while i + n - 1 < max_len:
             # Memory intensive
             # new_model = clone_model(model)
-            # del new_model.transformer.blocks[i:i+n-1]   
+            # del new_sequential[i:i+n-1]   
             # yield model, i, i+n-1
             # i+=n
             
             # Memory efficient
-            del_blocks = list(copy.deepcopy(model.transformer.blocks[i:i+n]))
-            del model.transformer.blocks[i:i+n]
+            del_blocks = list(copy.deepcopy(sequential[i:i+n]))
+            del sequential[i:i+n]
             yield model, i, i+n-1
             for j, block in enumerate(del_blocks):
-                if i + j < len(model.transformer.blocks):
-                    model.transformer.blocks.insert(i + j, block)
+                if i + j < len(sequential):
+                    sequential.insert(i + j, block)
                 else:
-                    model.transformer.blocks.append(block)
+                    sequential.append(block)
             i+=step
 
     return None

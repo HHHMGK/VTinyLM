@@ -5,7 +5,9 @@ import json, csv
 from train import train_with_hf_dataset
 from model import load_model, load_tokenizer
 from eval import eval_essay_perplexity
-from .prune.prune import prune_model, estimate_importance, serial_pruning_model_generator
+from prune.prune import prune_model, estimate_importance, serial_pruning_model_generator
+from prune.data4prune import get_examples
+
 
 # Take arg from command line
 parser = argparse.ArgumentParser(description='')
@@ -43,11 +45,12 @@ parser.add_argument('--layer_step', type=int, default=0, help='Step for layer mo
 parser.add_argument('--pruning_method', type=str, default='magnitude', choices=['magnitude','gradient','activation','combination'], help='Pruning method')
 parser.add_argument('--pruning_rate', type=float, default=0.2, help='Pruning rate')
 parser.add_argument('--pruning_target', type=str, default='', help='Pruning target')
+parser.add_argument('--pruning_data', type=str, default='c4', help='Data for estimating importance')
+parser.add_argument('--pruning_rand_data', action=argparse.BooleanOptionalAction, help='Random data for estimating importance')
 parser.add_argument('--pruning_batch_size', type=int, default=0, help='Batch size for pruning')
 parser.add_argument('--pruning_avg', action=argparse.BooleanOptionalAction, help='Average pruning or not')
 parser.add_argument('--pruning_mag_norm', type=str, default='l1', choices=['l1','l2'], help='Norm for pruning')
 parser.add_argument('--pruning_grad_T_order', type=int, default=1, help='T order for pruning')
-parser.add_argument('--pruning_prefix', type=str, default=None, help='Prefix for pruning')
 
 
 def write_result(results, output_file, benchmark_type='perplexity', output_console=False):
@@ -140,7 +143,7 @@ if args.run_mode == 'eval':
     gc.collect()
     torch.cuda.empty_cache()
 
-if args.run_mode == 'pruning':
+if args.run_mode == 'prune':
     print('Evaluating with benchmark:', args.benchmark)
     
     if args.load_peft_path is not None:
@@ -165,10 +168,12 @@ if args.run_mode == 'pruning':
             results.append({'Modification':'Base model', **eval_results})
 
         #PRUNING
+        print('Fetching examples for pruning')
+        prune_data = get_examples(dataset=args.pruning_data, tokenizer=tokenizer, rand=args.pruning_rand_data)
         print('Pruning model')
-        ranking = estimate_importance(base_model, tokenizer, args.pruning_method, args.pruning_batch_size, args.pruning_avg, args.pruning_grad_T_order, args.pruning_mag_norm, args.pruning_target, args.pruning_prefix)   
-        print('Importance estimated')    
-        pruned_model = prune_model(base_model, ranking, args.pruning_rate, args.pruning_target, model_type='phogpt')
+        ranking = estimate_importance(base_model, method=args.pruning_method, prune_data=prune_data, avg=args.pruning_avg,norm=args.pruning_mag_norm, target=args.pruning_target, T_order=args.pruning_grad_T_order, batch_size=args.pruning_batch_size)
+        print('Importance estimated with layers rankings:', ranking)    
+        pruned_model = prune_model(base_model, ranking, args.pruning_rate, args.pruning_target)
         print('Model pruned')
         eval_results = eval_essay_perplexity(pruned_model, tokenizer, device, lang=lang, instructive=args.instructive_prompt,repeat=args.repeat, measure_time=args.measure_time)
         results.append({'Modification':f'Pruned by {args.pruning_method} method', **eval_results})
