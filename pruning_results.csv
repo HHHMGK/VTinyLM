@@ -1,3 +1,35 @@
 Modification,Perplexity_mean,Perplexity_stddev,Time_mean,Time_stddev
-Base model,12.6773828125,0,1.3863680362701416,0
-Pruned by combine method,168.80046875,0,0.7975270748138428,0
+Base model,12.6773828125,0,1.4533319473266602,0
+Pruned by combine method,25.5465234375,0,0.7973003387451172,0
+Modification,Perplexity_mean,Perplexity_stddev,Time_mean,Time_stddev
+Modification,Perplexity_mean,Perplexity_stddev,Time_mean,Time_stddev
+"{'run_mode': 'prune', 'config': 'config.json', 'base_model': 'vinai/PhoGPT-4B-Chat', 'output': 'pruning_results.csv', 'instructive_prompt': False, 'measure_time': True, 'output_console': True, 'bnb': 'none', 'load_peft_path': None, 'model_path': '', 'dataset_path': '', 'block_size': 1024, 'precision': 'fp16', 'eval_after_train': None, 'save_full_model': None, 'save_path': './trained_model', 'benchmark': 'perplexity-essay-vn', 'repeat': 1, 'modification': 'layer_reduction', 'eval_base': True, 'layer_step': 0, 'pruning_method': 'combine', 'pruning_rate': 0.2, 'pruning_target': '', 'pruning_data': 'oscar-vi', 'pruning_n_samples': 64, 'pruning_rand_data': True, 'pruning_batch_size': 32, 'pruning_avg': True, 'pruning_mag_norm': 'l1', 'pruning_grad_T_order': 1}",,,,
+Base model,12.6773828125,0,1.3093531131744385,0
+Pruned by combine method,25.5465234375,0,0.4924924373626709,0
+Modification,Perplexity_mean,Perplexity_stddev,Time_mean,Time_stddev
+"{'run_mode': 'prune', 'config': 'config.json', 'base_model': 'vinai/PhoGPT-4B-Chat', 'output': 'pruning_results.csv', 'instructive_prompt': False, 'measure_time': True, 'output_console': True, 'bnb': 'none', 'load_peft_path': None, 'model_path': '', 'dataset_path': '', 'block_size': 1024, 'precision': 'fp16', 'eval_after_train': None, 'save_full_model': None, 'save_path': './trained_model', 'benchmark': 'perplexity-essay-vn', 'repeat': 1, 'modification': 'layer_reduction', 'eval_base': True, 'layer_step': 0, 'pruning_method': 'combine', 'pruning_rate': 0.2, 'pruning_target': '', 'pruning_data': 'oscar-vi', 'pruning_n_samples': 1000, 'pruning_rand_data': True, 'pruning_batch_size': 32, 'pruning_avg': True, 'pruning_mag_norm': 'l1', 'pruning_grad_T_order': 1}",,,,
+Base model,12.6773828125,0,1.2220726013183594,0
+Pruned by combine method,nan,0,0.7964897155761719,0
+Modification,Perplexity_mean,Perplexity_stddev,Time_mean,Time_stddev
+"{'run_mode': 'prune', 'config': 'config.json', 'base_model': 'vinai/PhoGPT-4B-Chat', 'output': 'pruning_results.csv', 'instructive_prompt': False, 'measure_time': True, 'output_console': True, 'bnb': 'none', 'load_peft_path': None, 'model_path': '', 'dataset_path': '', 'block_size': 1024, 'precision': 'fp16', 'eval_after_train': None, 'save_full_model': None, 'save_path': './trained_model', 'benchmark': 'perplexity-essay-vn', 'repeat': 1, 'modification': 'layer_reduction', 'eval_base': True, 'layer_step': 0, 'pruning_method': 'combine', 'pruning_rate': 0.2, 'pruning_target': '', 'pruning_data': 'oscar-vi', 'pruning_n_samples': 1000, 'pruning_rand_data': True, 'pruning_batch_size': 32, 'pruning_avg': True, 'pruning_mag_norm': 'l1', 'pruning_grad_T_order': 1}",,,,
+Base model,12.6773828125,0,1.5811409950256348,0
+Pruned by combine method,nan,0,0.7886452674865723,0
+Modification,Perplexity_mean,Perplexity_stddev,Time_mean,Time_stddev
+"{'run_mode': 'prune', 'config': 'config.json', 'base_model': 'vinai/PhoGPT-4B-Chat', 'output': 'pruning_results.csv', 'instructive_prompt': False, 'measure_time': True, 'output_console': True, 'bnb': 'none', 'load_peft_path': None, 'model_path': '', 'dataset_path': '', 'block_size': 1024, 'precision': 'fp16', 'eval_after_train': None, 'save_full_model': None, 'save_path': './trained_model', 'benchmark': 'perplexity-essay-vn', 'repeat': 1, 'modification': 'layer_reduction', 'eval_base': True, 'layer_step': 0, 'pruning_method': 'combine', 'pruning_rate': 0.2, 'pruning_target': '', 'pruning_data': 'oscar-vi', 'pruning_n_samples': 1024, 'pruning_rand_data': True, 'pruning_batch_size': 32, 'pruning_avg': True, 'pruning_mag_norm': 'l1', 'pruning_grad_T_order': 1}",,,,
+Base model,12.6773828125,0,1.3828229904174805,0
+Pruned by combine method,25.5465234375,0,0.8018567562103271,0
+Modification,Perplexity_mean,Time_mean
+"{'run_mode': 'prune', 'config': 'config.json', 'base_model': 'vinai/PhoGPT-4B-Chat', 'output': 'pruning_results.csv', 'instructive_prompt': False, 'measure_time': True, 'output_console': True, 'bnb': 'none', 'load_peft_path': None, 'model_path': '', 'dataset_path': '', 'block_size': 1024, 'precision': 'fp16', 'eval_after_train': None, 'save_full_model': None, 'save_path': './trained_model', 'benchmark': 'perplexity-essay-vn', 'repeat': 1, 'modification': 'layer_reduction', 'eval_base': True, 'layer_step': 0, 'pruning_method': 'combine', 'pruning_rate': 0.1, 'pruning_target': '', 'pruning_data': 'oscar-vi', 'pruning_n_samples': 1024, 'pruning_rand_data': True, 'pruning_batch_size': 32, 'pruning_avg': True, 'pruning_mag_norm': 'l1', 'pruning_grad_T_order': 1}",,
+Base model,12.6773828125,1.367027997970581
+"Layers pruned: [2, 1, 0]",,
+Pruned by combine method,nan,0.784311056137085
+Modification,Perplexity_mean,Time_mean
+"{'run_mode': 'prune', 'config': 'config.json', 'base_model': 'vinai/PhoGPT-4B-Chat', 'output': 'pruning_results.csv', 'instructive_prompt': False, 'measure_time': True, 'output_console': True, 'bnb': 'none', 'load_peft_path': None, 'model_path': '', 'dataset_path': '', 'block_size': 1024, 'precision': 'fp16', 'eval_after_train': None, 'save_full_model': None, 'save_path': './trained_model', 'benchmark': 'perplexity-essay-vn', 'repeat': 1, 'modification': 'layer_reduction', 'eval_base': True, 'layer_step': 0, 'pruning_method': 'combine', 'pruning_rate': 0.1, 'pruning_target': '', 'pruning_data': 'oscar-vi', 'pruning_n_samples': 1024, 'pruning_rand_data': True, 'pruning_batch_size': 32, 'pruning_avg': True, 'pruning_mag_norm': 'l1', 'pruning_grad_T_order': 1}",,
+Base model,12.6773828125,1.3439080715179443
+"Layers pruned: [2, 1, 0]",,
+Pruned by combine method,nan,0.7970092296600342
+Modification,Perplexity_mean,Time_mean
+"{'run_mode': 'prune', 'config': 'config.json', 'base_model': 'vinai/PhoGPT-4B-Chat', 'output': 'pruning_results.csv', 'instructive_prompt': False, 'measure_time': True, 'output_console': True, 'bnb': 'none', 'load_peft_path': None, 'model_path': '', 'dataset_path': '', 'block_size': 1024, 'precision': 'fp16', 'eval_after_train': None, 'save_full_model': None, 'save_path': './trained_model', 'benchmark': 'perplexity-essay-vn', 'repeat': 1, 'modification': 'layer_reduction', 'eval_base': True, 'layer_step': 0, 'pruning_method': 'combine', 'pruning_rate': 0.1, 'pruning_target': '', 'pruning_data': 'oscar-vi', 'pruning_n_samples': 512, 'pruning_rand_data': True, 'pruning_batch_size': 32, 'pruning_avg': True, 'pruning_mag_norm': 'l1', 'pruning_grad_T_order': 1}",,
+Base model,12.6773828125,1.2595305442810059
+"Layers pruned: [14, 10, 4]",,
+Pruned by combine method,14.62015625,0.7336404323577881

@@ -59,9 +59,10 @@ def write_result(results, output_file, benchmark_type='perplexity', output_conso
     Write the results to a CSV file.
     """
     if benchmark_type == 'perplexity':
-        header = ['Modification', 'Perplexity_mean', 'Perplexity_stddev', 'Time_mean', 'Time_stddev']
+        # header = ['Modification', 'Perplexity_mean', 'Perplexity_stddev', 'Time_mean', 'Time_stddev']
+        header = ['Modification', 'Perplexity_mean', 'Time_mean']
 
-    with open(output_file, 'w', newline='') as f:
+    with open(output_file, 'a', newline='') as f:
         csv_writer = csv.DictWriter(f, fieldnames=header)
         csv_writer.writeheader()
         csv_writer.writerows(results)
@@ -151,6 +152,7 @@ if args.run_mode == 'prune':
     print('Model and Tokenizer loaded')
      
     results = []
+    results.append({'Modification':args.__dict__})
     benchmark_type = args.benchmark.split('-')[0] # 'perplexity' or 'villm'
     
     if benchmark_type == 'perplexity':
@@ -175,7 +177,8 @@ if args.run_mode == 'prune':
         ranking = estimate_importance(base_model, method=args.pruning_method, prune_data=prune_data, avg=args.pruning_avg,norm=args.pruning_mag_norm, target=args.pruning_target, T_order=args.pruning_grad_T_order, batch_size=args.pruning_batch_size)
         print('Importance estimated with layers rankings:', ranking)    
         # pruned_model = 
-        prune_model(base_model, ranking, args.pruning_rate, args.pruning_target)
+        layers_pruned = prune_model(base_model, ranking, args.pruning_rate, args.pruning_target)
+        results.append({'Modification': f"Layers pruned: {str(layers_pruned)}"})
         print('Model pruned')
         eval_results = eval_essay_perplexity(base_model, tokenizer, device, lang=lang, instructive=args.instructive_prompt,repeat=args.repeat, measure_time=args.measure_time)
         results.append({'Modification':f'Pruned by {args.pruning_method} method', **eval_results})

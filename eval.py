@@ -51,8 +51,8 @@ def eval_perplexity(model, tokenizer, prompts, device, repeat=1, measure_time=Fa
             time_stddev = np.std(timing)
 
     # return {'perplexity': (perplexity_mean, perplexity_stddev), 'time': (time_mean, time_stddev) if measure_time else None}
-    return {'Perplexity_mean':perplexity_mean, 'Perplexity_stddev':perplexity_stddev, 
-                            'Time_mean':time_mean, 'Time_stddev':time_stddev}
+    return {'Perplexity_mean':perplexity_mean, # 'Perplexity_stddev':perplexity_stddev, 
+                            'Time_mean':time_mean} #'Time_stddev':time_stddev}
 
 def eval_essay_perplexity(model, tokenizer, device, lang='vn', instructive=False ,repeat=1, measure_time=False):
     """

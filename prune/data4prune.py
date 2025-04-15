@@ -21,7 +21,7 @@ def get_examples(dataset, tokenizer, n_samples, seq_len = 64, rand=False):
     elif dataset == 'oscar-vi':
         # 'https://huggingface.co/datasets/oscar-corpus/OSCAR-2301/blob/main/vi_meta/vi_meta_part_1.jsonl.zst'
         traindata = load_dataset(
-            'oscar-corpus/OSCAR-2301', language='vi', split='train', streaming=True
+            'oscar-corpus/OSCAR-2301', language='vi', split='train', streaming=True, trust_remote_code=True
         )
         data_list=[]
         for d in traindata:

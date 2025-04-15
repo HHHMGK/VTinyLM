@@ -17,30 +17,30 @@ def estimate_importance(model, method='magnitude', prune_data=None, avg=False,
     """
     Estimate the importance of model layers using different methods.
     """
-    rankings = [0] * len(get_transformer_sequential(model))
-    if method == 'magnitude' or method == 'combine':
-        r = ranking_by_magnitude(model, norm=norm, avg=avg, target=target)
-        rankings = [rankings[i] + r[i] for i in range(len(rankings))]
-        print("Ranking by magnitude: ",rankings)
-    
-    if method == 'grads' or method == 'combine':
-        r = ranking_by_grads(model, prune_data, avg=avg, T_order=T_order, batch_size=batch_size)
-        rankings = [rankings[i] + r[i] for i in range(len(rankings))]
-        print("Ranking by grads: ",rankings)
-    
-    if method == 'activation' or method == 'combine':
-        r = ranking_by_activation(model, prune_data, avg=avg)
-        rankings = [rankings[i] + r[i] for i in range(len(rankings))]
-        print("Ranking by activation: ",rankings)
-    
-    if method == 'combine':
-        rankings = [rankings[i] / 3 for i in range(len(rankings))]
+    if method == 'magnitude':
+        return ranking_by_magnitude(model, norm=norm, avg=avg, target=target)
+    elif method == 'grads':
+        return ranking_by_grads(model, prune_data, avg=avg, T_order=T_order, batch_size=batch_size)
+    elif method == 'activation':
+        return ranking_by_activation(model, prune_data, avg=avg)
+    elif method == 'combine':
+        mag = ranking_by_magnitude(model, norm=norm, avg=avg, target=target)
+        print(f"Mag: {mag}")
+        grads = ranking_by_grads(model, prune_data, avg=avg, T_order=T_order, batch_size=batch_size)
+        print(f"Grads: {grads}")
+        act = ranking_by_activation(model, prune_data, avg=avg)
+        print(f"Act: {act}")
+        return [m*0.45 + g*0.45 + a*0.1 / 3 for m, g, a in zip(mag, grads, act)]
+
+    else:
+        raise ValueError(f"Unknown method: {method}. Choose from 'magnitude', 'grads', or 'activation'")
     
     return rankings
 
 def prune_model(model, rankings, pruning_rate=0.2, targets=[]):
     """
     Prune the targets module of the model based on the given rankings and pruning rate.
+    Returns the pruned layers.
     """
     num_layers = int(len(rankings) * pruning_rate)
     layers = range(len(rankings))
@@ -59,7 +59,7 @@ def prune_model(model, rankings, pruning_rate=0.2, targets=[]):
             #         sequential[layer].remove_module(target)
     
     
-    # return model
+    return layers_to_prune
 
 def serial_pruning_model_generator(model, num_layers = None, step = None):
     """
