@@ -70,7 +70,7 @@ def write_result(results, output_file, benchmark_type='perplexity', output_conso
     if output_console:
         print('Results written to', output_file)
         print(header)
-        print(results)
+        print(*results,sep='\n')
 
 args = parser.parse_args()
 
