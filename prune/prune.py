@@ -1,5 +1,6 @@
 from .methods import ranking_by_grads, ranking_by_magnitude, ranking_by_activation
 import copy
+from math import isnan
 
 def get_transformer_sequential(model):
     """
@@ -11,7 +12,15 @@ def get_transformer_sequential(model):
         return model.model.layers
     else:
         raise ValueError("Model does not have transformer or model attribute.")
-    
+def normalize(arr):
+    mi = min(arr)
+    ma = max(arr)
+    for x in arr:
+        if isnan(x):
+            x = 0
+        else:
+            x = (x - mi)/(ma - mi)
+    return arr
 def estimate_importance(model, method='magnitude', prune_data=None, avg=False, 
                         norm='l1', target=None, T_order=1, batch_size=16):
     """
@@ -25,11 +34,13 @@ def estimate_importance(model, method='magnitude', prune_data=None, avg=False,
         return ranking_by_activation(model, prune_data, avg=avg)
     elif method == 'combine':
         mag = ranking_by_magnitude(model, norm=norm, avg=avg, target=target)
+        mag = normalize(mag)
         print(f"Mag: {mag}")
         grads = ranking_by_grads(model, prune_data, avg=avg, T_order=T_order, batch_size=batch_size)
+        grads = normalize(grads)
         print(f"Grads: {grads}")
         act = ranking_by_activation(model, prune_data, avg=avg)
-        print(f"Act: {act}")
+        act = normalize(act)
         return [m*0.45 + g*0.45 + a*0.1 / 3 for m, g, a in zip(mag, grads, act)]
 
     else:
