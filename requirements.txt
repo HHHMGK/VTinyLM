@@ -8,4 +8,4 @@ trl
 peft==0.10.0
 bitsandbytes
 triton # for phogpt ?
-zstandard # for oscar-vi dataset
+zstandard # for oscarvi dataset

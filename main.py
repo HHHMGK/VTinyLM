@@ -45,7 +45,7 @@ parser.add_argument('--layer_step', type=int, default=0, help='Step for layer mo
 parser.add_argument('--pruning_method', type=str, default='magnitude', choices=['magnitude','gradient','activation','combine'], help='Pruning method')
 parser.add_argument('--pruning_rate', type=float, default=0.2, help='Pruning rate')
 parser.add_argument('--pruning_target', type=str, default='', help='Pruning target')
-parser.add_argument('--pruning_data', type=str, default='c4', choices=['c4','bookcorpus','oscar-vi'], help='Data for estimating importance')
+parser.add_argument('--pruning_data', type=str, default='c4', choices=['c4','bookcorpus','oscarvi'], help='Data for estimating importance')
 parser.add_argument('--pruning_n_samples', type=int, default=1000, help='Number of samples for estimating importance')
 parser.add_argument('--pruning_rand_data', action=argparse.BooleanOptionalAction, help='Random data for estimating importance')
 parser.add_argument('--pruning_batch_size', type=int, default=32, help='Batch size for pruning')

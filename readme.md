@@ -7,4 +7,9 @@ python main.py prune --base_model vinai/PhoGPT-4B-Chat --pruning_method magnitud
 !python main.py prune --base_model vinai/PhoGPT-4B-Chat \
 --pruning_method combine --pruning_rate 0.2 --pruning_avg --pruning_mag_norm l1 --pruning_rand_data --pruning_n_sample 512 \
 --benchmark perplexity-essay-vn \
---eval_base --output pruning_results.csv --measure_time --pruning_data oscar-vi --output_console
+--eval_base --output pruning_results.csv --measure_time --pruning_data oscarvi --output_console
+
+!python main.py prune --base_model vinai/PhoGPT-4B-Chat \
+--pruning_method combine --pruning_rate 0.2 --pruning_avg --pruning_mag_norm l1 --pruning_rand_data --pruning_n_sample 512 \
+--benchmark perplexity-dataset-oscarvi \
+--eval_base --output pruning_results.csv --measure_time --pruning_data oscarvi --output_console
