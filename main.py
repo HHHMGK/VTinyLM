@@ -4,7 +4,7 @@ import torch
 import json, csv
 from train import train_with_hf_dataset
 from model import load_model, load_tokenizer
-from eval import eval_essay_perplexity
+from eval import eval_essay_perplexity, eval
 from prune.prune import prune_model, estimate_importance, serial_pruning_model_generator
 from prune.data4prune import get_examples
 
@@ -35,7 +35,7 @@ parser.add_argument('--save_full_model', action=argparse.BooleanOptionalAction, 
 parser.add_argument('--save_path', type=str, default='./trained_model', help='Path to save model')
 
 # For EVALuating mode
-parser.add_argument('--benchmark', type=str, default='perplexity-vn', choices=['perplexity-essay-vn','perplexity-essay-en','villm-eval','perplexity-news-vn'], help='Benchmark to evaluate')
+parser.add_argument('--benchmark', type=str, default='perplexity-essay-vn', choices=['perplexity-essay-vn','perplexity-essay-en','villm-eval','perplexity-news-vn','perplexity-dataset'], help='Benchmark to evaluate')
 parser.add_argument('--repeat', type=int, default=1, help='Number of evaluation to repeat')
 parser.add_argument('--modification', type=str, default='layer_reduction', choices=['layer_reduction','base'], help='Model modification method')
 parser.add_argument('--eval_base', action=argparse.BooleanOptionalAction, help='Evaluate base model or not')
@@ -117,8 +117,9 @@ if args.run_mode == 'eval':
     benchmark_type = args.benchmark.split('-')[0] # 'perplexity' or 'villm'
     
     if benchmark_type == 'perplexity':
-        type = args.benchmark.split('-')[1] # 'essay' or 'news'
-        lang = args.benchmark.split('-')[2] # 'vn' or 'en'
+        type = args.benchmark.split('-')[1] # 'essay' or 'news' or 'dataset'
+        if type != 'dataset':
+            lang = args.benchmark.split('-')[2] # 'vn' or 'en'
 
         if args.eval_base:
             print('Evaluating base model')
@@ -153,41 +154,37 @@ if args.run_mode == 'prune':
      
     results = []
     results.append({'Modification':args.__dict__})
-    benchmark_type = args.benchmark.split('-')[0] # 'perplexity' or 'villm'
+
+    if args.eval_base:
+        print('Evaluating base model')
+
+        eval_results = eval(base_model, tokenizer, benchmark_type, device, repeat=args.repeat, measure_time=args.measure_time, instructive=args.instructive_prompt)
+
+        results.append({'Modification':'Base model', **eval_results})
+
     
-    if benchmark_type == 'perplexity':
-        type = args.benchmark.split('-')[1] # 'essay' or 'news'
-        lang = args.benchmark.split('-')[2] # 'vn' or 'en'
+    print('Fetching examples for pruning')
+    if args.pruning_method in ['gradient','activation','combine']:
+        prune_data = get_examples(dataset=args.pruning_data, tokenizer=tokenizer, rand=args.pruning_rand_data, n_samples=args.pruning_n_samples).to(device)
+    else:
+        prune_data = None
 
-        if args.eval_base:
-            print('Evaluating base model')
+    print('Pruning model with method:', args.pruning_method)
+    ranking = estimate_importance(base_model, method=args.pruning_method, prune_data=prune_data, avg=args.pruning_avg,norm=args.pruning_mag_norm, target=args.pruning_target, T_order=args.pruning_grad_T_order, batch_size=args.pruning_batch_size)
+    print('Importance estimated with layers rankings:', ranking)    
+    
+    layers_pruned = prune_model(base_model, ranking, args.pruning_rate, args.pruning_target)
+    results.append({'Modification': f"Layers pruned: {str(layers_pruned)}"})
+    print('Model pruned')
+    
+    eval_results = eval(base_model, tokenizer, benchmark_type, device, repeat=args.repeat, measure_time=args.measure_time, instructive=args.instructive_prompt)
+    results.append({'Modification':f'Pruned by {args.pruning_method} method', **eval_results})
+    
+    # del pruned_model
+    gc.collect()
+    torch.cuda.empty_cache()
 
-            eval_results = eval_essay_perplexity(base_model, tokenizer, device, lang=lang, instructive=args.instructive_prompt,repeat=args.repeat, measure_time=args.measure_time)
-
-            results.append({'Modification':'Base model', **eval_results})
-
-        #PRUNING
-        print('Fetching examples for pruning')
-        if args.pruning_method in ['gradient','activation','combine']:
-            prune_data = get_examples(dataset=args.pruning_data, tokenizer=tokenizer, rand=args.pruning_rand_data, n_samples=args.pruning_n_samples).to(device)
-        else:
-            prune_data = None
-
-        print('Pruning model with method:', args.pruning_method)
-        ranking = estimate_importance(base_model, method=args.pruning_method, prune_data=prune_data, avg=args.pruning_avg,norm=args.pruning_mag_norm, target=args.pruning_target, T_order=args.pruning_grad_T_order, batch_size=args.pruning_batch_size)
-        print('Importance estimated with layers rankings:', ranking)    
-        # pruned_model = 
-        layers_pruned = prune_model(base_model, ranking, args.pruning_rate, args.pruning_target)
-        results.append({'Modification': f"Layers pruned: {str(layers_pruned)}"})
-        print('Model pruned')
-        eval_results = eval_essay_perplexity(base_model, tokenizer, device, lang=lang, instructive=args.instructive_prompt,repeat=args.repeat, measure_time=args.measure_time)
-        results.append({'Modification':f'Pruned by {args.pruning_method} method', **eval_results})
-        
-        # del pruned_model
-        gc.collect()
-        torch.cuda.empty_cache()
-
-        write_result(results, args.output, benchmark_type=benchmark_type, output_console=args.output_console)
+    write_result(results, args.output, benchmark_type=benchmark_type, output_console=args.output_console)
     
     del base_model
     gc.collect()

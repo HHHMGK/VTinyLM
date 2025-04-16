@@ -15,11 +15,14 @@ def get_transformer_sequential(model):
 def normalize(arr):
     mi = min(arr)
     ma = max(arr)
+    print(f"Min: {mi}, Max: {ma}")
+    print(arr)
     for x in arr:
         if isnan(x):
             x = 0
         else:
             x = (x - mi)/(ma - mi)
+    print(arr)
     return arr
 def estimate_importance(model, method='magnitude', prune_data=None, avg=False, 
                         norm='l1', target=None, T_order=1, batch_size=16):
@@ -41,6 +44,7 @@ def estimate_importance(model, method='magnitude', prune_data=None, avg=False,
         print(f"Grads: {grads}")
         act = ranking_by_activation(model, prune_data, avg=avg)
         act = normalize(act)
+        print(f"Act: {act}")
         return [m*0.45 + g*0.45 + a*0.1 / 3 for m, g, a in zip(mag, grads, act)]
 
     else:

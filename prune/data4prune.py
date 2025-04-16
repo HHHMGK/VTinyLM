@@ -2,7 +2,7 @@ from datasets import load_dataset, Dataset
 import torch
 import random
 
-def get_examples(dataset, tokenizer, n_samples, seq_len = 64, rand=False):
+def get_examples(dataset, tokenizer, n_samples, seq_len = 64, rand=False, raw=False):
     if dataset == 'c4':
         traindata = load_dataset(
             'allenai/c4', data_files='en/c4-train.00000-of-01024.json.gz', split='train'
@@ -31,26 +31,45 @@ def get_examples(dataset, tokenizer, n_samples, seq_len = 64, rand=False):
         # data_list = list(traindata["train"].take(n_samples*10))
         traindata = Dataset.from_list(data_list)
 
-    tokenized_samples, history = [], []
+    samples, history = [], []
     if rand:
         for nn in range(n_samples):
             while True:
                 i = random.randint(0, len(traindata) - 1)
                 if i in history:
                     continue
-                tokenized_sample = tokenizer(traindata[i]['text'], return_tensors='pt', truncation=True)
-                if tokenized_sample.input_ids.shape[1] >= seq_len:
-                    history.append(i)
-                    break
-            i = random.randint(0, tokenized_sample.input_ids.shape[1] - seq_len)
-            tokenized_samples.append(tokenized_sample.input_ids[:, i:i+seq_len])
+                if raw:
+                    sample = traindata[i]['text']
+                    if len(sample) >= seq_len:
+                        history.append(i)
+                        break
+                else:
+                    sample = tokenizer(traindata[i]['text'], return_tensors='pt', truncation=True)
+                    if sample.input_ids.shape[1] >= seq_len:
+                        history.append(i)
+                        break
+            if raw:
+                i = random.randint(0, len(sample) - seq_len)
+                samples.append(sample[i:i+seq_len])
+            else:
+                i = random.randint(0, sample.input_ids.shape[1] - seq_len)
+                samples.append(sample.input_ids[:, i:i+seq_len])
     else:
         i = 0
         for _ in range(n_samples):
             while True:
-                tokenized_sample = tokenizer(traindata[i]['text'], return_tensors='pt')
-                if tokenized_sample.input_ids.shape[1] >= seq_len:
-                    tokenized_samples.append(tokenized_sample.input_ids[:, :seq_len])
-                    break
+                if raw:
+                    sample = traindata[i]['text']
+                    if len(sample) >= seq_len:
+                        samples.append(sample[:seq_len])
+                        break
+                else:
+                    sample = tokenizer(traindata[i]['text'], return_tensors='pt')
+                    if sample.input_ids.shape[1] >= seq_len:
+                        samples.append(sample.input_ids[:, :seq_len])
+                        break
                 i += 1
-    return torch.cat(tokenized_samples, dim=0 )
+    if raw:
+        return samples
+    else: 
+        return torch.cat(samples, dim=0 )
