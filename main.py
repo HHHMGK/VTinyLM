@@ -180,10 +180,6 @@ if args.run_mode == 'prune':
     eval_results = eval(base_model, tokenizer, benchmark_type, device, repeat=args.repeat, measure_time=args.measure_time, instructive=args.instructive_prompt)
     results.append({'Modification':f'Pruned by {args.pruning_method} method', **eval_results})
     
-    # del pruned_model
-    gc.collect()
-    torch.cuda.empty_cache()
-
     write_result(results, args.output, benchmark_type=benchmark_type, output_console=args.output_console)
     
     del base_model

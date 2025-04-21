@@ -9,7 +9,12 @@ def ranking_by_grads(model, input, avg=False, T_order=1, batch_size=0):
     input_size = input.shape[0]
     batch_size = batch_size if batch_size > 0 else input_size
     num_steps = (input_size + batch_size - 1) // batch_size
-    importance_list = [0.0] * len(model.transformer.blocks)
+
+    if model.model_type == 'llama':
+        sequential = model.model.layers
+    else:
+        sequential = model.transformer.blocks
+    importance_list = [0.0] * len(sequential)
 
     for i in tqdm(range(0, input_size, batch_size), desc="Processing batches"):
         batch_input = input[i:min(i+batch_size, input_size)]  # Process a smaller batch
@@ -19,7 +24,7 @@ def ranking_by_grads(model, input, avg=False, T_order=1, batch_size=0):
         # loss = loss / input_size  # Normalize the loss
         loss.backward()
         
-        for id, layer in enumerate(model.transformer.blocks):
+        for id, layer in enumerate(sequential):
             importance = 0
             for name, param in layer.named_parameters():
                 if param.requires_grad and param.grad is not None:
@@ -43,7 +48,11 @@ def ranking_by_grads(model, input, avg=False, T_order=1, batch_size=0):
 
 def ranking_by_magnitude(model, norm='l1', avg=False, target=None):
     importance_list = []
-    for id, layer in enumerate(model.transformer.blocks):
+    if model.model_type == 'llama':
+        sequential = model.model.layers
+    else:
+        sequential = model.transformer.blocks
+    for id, layer in enumerate(sequential):
         layer_importance = 0.0
         for name, param in layer.named_parameters():
             if(target is not None and target not in name):
@@ -62,7 +71,7 @@ def ranking_by_magnitude(model, norm='l1', avg=False, target=None):
 
 def ranking_by_activation(model, batch_input, avg=False):
     model.eval()
-    # importance_list = [0.0] * len(model.transformer.blocks)
+    # importance_list = [0.0] * len(sequential)
     activations = {}
     hooks = []
     def get_activation(name):
@@ -73,8 +82,11 @@ def ranking_by_activation(model, batch_input, avg=False):
             else:
                 activations[name] = [act_val]
         return hook
-
-    for i, layer in enumerate(model.transformer.blocks):
+    if model.model_type == 'llama':
+        sequential = model.model.layers
+    else:
+        sequential = model.transformer.blocks
+    for i, layer in enumerate(sequential):
         hook = layer.register_forward_hook(get_activation(f"layer_{i}"))
         hooks.append(hook)
 
@@ -91,7 +103,7 @@ def ranking_by_activation(model, batch_input, avg=False):
 
     importance_list = []
     prev = 0
-    for i in range(len(model.transformer.blocks)):
+    for i in range(len(sequential)):
         acts = activations.get(f"layer_{i}", [0])
         layer_importance = sum(acts)
         if avg:
