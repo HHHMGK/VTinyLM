@@ -35,7 +35,7 @@ parser.add_argument('--save_full_model', action=argparse.BooleanOptionalAction, 
 parser.add_argument('--save_path', type=str, default='./trained_model', help='Path to save model')
 
 # For EVALuating mode
-parser.add_argument('--benchmark', type=str, default='perplexity-essay-vn', choices=['perplexity-essay-vn','perplexity-essay-en','villm-eval','perplexity-news-vn','perplexity-dataset'], help='Benchmark to evaluate')
+parser.add_argument('--benchmark', type=str, default='perplexity-essay-vn', help='Benchmark to evaluate')
 parser.add_argument('--repeat', type=int, default=1, help='Number of evaluation to repeat')
 parser.add_argument('--modification', type=str, default='layer_reduction', choices=['layer_reduction','base'], help='Model modification method')
 parser.add_argument('--eval_base', action=argparse.BooleanOptionalAction, help='Evaluate base model or not')
@@ -43,7 +43,8 @@ parser.add_argument('--layer_step', type=int, default=0, help='Step for layer mo
 
 # For Pruing mode
 parser.add_argument('--pruning_method', type=str, default='magnitude', choices=['magnitude','gradient','activation','combine'], help='Pruning method')
-parser.add_argument('--pruning_rate', type=float, default=0.2, help='Pruning rate')
+parser.add_argument('--pruning_rate', type=float, default=0, nargs='*', help='Pruning rate,')
+parser.add_argument('--pruning_layer_num', type=int, default=0, help='Number of layers to prune')
 parser.add_argument('--pruning_target', type=str, default='', help='Pruning target')
 parser.add_argument('--pruning_data', type=str, default='c4', choices=['c4','bookcorpus','oscarvi'], help='Data for estimating importance')
 parser.add_argument('--pruning_n_samples', type=int, default=1000, help='Number of samples for estimating importance')
@@ -71,6 +72,7 @@ def write_result(results, output_file, benchmark_type='perplexity', output_conso
         print('Results written to', output_file)
         print(header)
         print(*results,sep='\n')
+
 
 args = parser.parse_args()
 
@@ -114,33 +116,32 @@ if args.run_mode == 'eval':
     print('Model and Tokenizer loaded')
      
     results = []
-    benchmark_type = args.benchmark.split('-')[0] # 'perplexity' or 'villm'
+    benchmark_type = args.benchmark.split('-')[0] # 'perplexity' or other benchmark types
     
-    if benchmark_type == 'perplexity':
-        type = args.benchmark.split('-')[1] # 'essay' or 'news' or 'dataset'
-        if type != 'dataset':
-            lang = args.benchmark.split('-')[2] # 'vn' or 'en'
-
-        if args.eval_base:
-            print('Evaluating base model')
-            eval_results = eval_essay_perplexity(base_model, tokenizer, device, lang=lang, instructive=args.instructive_prompt,repeat=args.repeat, measure_time=args.measure_time)
-            results.append({'Modification':'Base model', **eval_results})
+    if args.eval_base:
+        print('Evaluating base model')
+        eval_results = eval(base_model, tokenizer, args.benchmark, device, 
+                          repeat=args.repeat, measure_time=args.measure_time, 
+                          instructive=args.instructive_prompt)
+        results.append({'Modification':'Base model', **eval_results})
+        
+    if args.modification == 'layer_reduction':
+        new_model_generator = serial_pruning_model_generator(base_model, num_layers=None, step=args.layer_step)
+        while True:
+            model, layer_start, layer_end = next(new_model_generator, (None, None, None))
+            if model is None:
+                break
+            print(f'Evaluating model with layers from {layer_start} to {layer_end} removed')
+            eval_results = eval(model, tokenizer, args.benchmark, device, 
+                              repeat=args.repeat, measure_time=args.measure_time, 
+                              instructive=args.instructive_prompt)
+            results.append({'Modification':f'Removed {layer_start} to {layer_end}', **eval_results})
             
-        if args.modification == 'layer_reduction':
-            new_model_generator = serial_pruning_model_generator(base_model, num_layers = None, step=args.layer_step)
-            while True:
-                model, layer_start, layer_end = next(new_model_generator, (None, None, None))
-                if model is None:
-                    break
-                print(f'Evaluating model with layers from {layer_start} to {layer_end} removed')
-                eval_results = eval_essay_perplexity(model, tokenizer, device, lang=lang, instructive=args.instructive_prompt,repeat=args.repeat, measure_time=args.measure_time)
-                results.append({'Modification':f'Removed {layer_start} to {layer_end}', **eval_results})
-                
-                del model
-                gc.collect()
-                torch.cuda.empty_cache()
+            del model
+            gc.collect()
+            torch.cuda.empty_cache()
 
-        write_result(results, args.output, benchmark_type=benchmark_type, output_console=args.output_console)
+    write_result(results, args.output, benchmark_type=benchmark_type, output_console=args.output_console)
     
     del base_model
     gc.collect()
@@ -158,7 +159,7 @@ if args.run_mode == 'prune':
     if args.eval_base:
         print('Evaluating base model')
 
-        eval_results = eval(base_model, tokenizer, benchmark_type, device, repeat=args.repeat, measure_time=args.measure_time, instructive=args.instructive_prompt)
+        eval_results = eval(base_model, tokenizer, args.benchmark, device, repeat=args.repeat, measure_time=args.measure_time, instructive=args.instructive_prompt)
 
         results.append({'Modification':'Base model', **eval_results})
 
@@ -173,14 +174,14 @@ if args.run_mode == 'prune':
     ranking = estimate_importance(base_model, method=args.pruning_method, prune_data=prune_data, avg=args.pruning_avg,norm=args.pruning_mag_norm, target=args.pruning_target, T_order=args.pruning_grad_T_order, batch_size=args.pruning_batch_size)
     print('Importance estimated with layers rankings:', ranking)    
     
-    layers_pruned = prune_model(base_model, ranking, args.pruning_rate, args.pruning_target)
+    layers_pruned = prune_model(base_model, ranking, args.pruning_rate, args.pruning_layer_num, args.pruning_target)
     results.append({'Modification': f"Layers pruned: {str(layers_pruned)}"})
     print('Model pruned')
     
-    eval_results = eval(base_model, tokenizer, benchmark_type, device, repeat=args.repeat, measure_time=args.measure_time, instructive=args.instructive_prompt)
+    eval_results = eval(base_model, tokenizer, args.benchmark, device, repeat=args.repeat, measure_time=args.measure_time, instructive=args.instructive_prompt)
     results.append({'Modification':f'Pruned by {args.pruning_method} method', **eval_results})
     
-    write_result(results, args.output, benchmark_type=benchmark_type, output_console=args.output_console)
+    write_result(results, args.output, benchmark_type=args.benchmark.split('-')[0], output_console=args.output_console)
     
     del base_model
     gc.collect()

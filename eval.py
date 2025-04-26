@@ -107,18 +107,18 @@ def eval_dataset_perplexity(model, tokenizer, dataset, device, repeat=1, measure
     
     return eval_perplexity(model, tokenizer, data, device, repeat, measure_time)
 
-def eval(model, tokenizer, benchmark_type, device, repeat=1, measure_time=False, instructive=False):
-    benchmark = benchmark_type.split('-')[0] # 'perplexity' or 'villm'
-    if benchmark == 'perplexity':
-        type = benchmark_type.split('-')[1] # 'essay' or 'news' or 'dataset'
+def eval(model, tokenizer, benchmark, device, repeat=1, measure_time=False, instructive=False):
+    benchmark_type = benchmark.split('-')[0] # 'perplexity' or 'villm'
+    if benchmark_type == 'perplexity':
+        type = benchmark.split('-')[1] # 'essay' or 'news' or 'dataset'
         if type == 'essay':
-            lang = benchmark_type.split('-')[2] # 'vn' or 'en'
+            lang = benchmark.split('-')[2] # 'vn' or 'en'
             return eval_essay_perplexity(model, tokenizer, device, lang=lang, instructive=instructive, repeat=repeat, measure_time=measure_time)
         elif type == 'news':
-            lang = benchmark_type.split('-')[2] # 'vn' or 'en'
+            lang = benchmark.split('-')[2] # 'vn' or 'en'
             return eval_news_perplexity(model, tokenizer, device, lang=lang, instructive=instructive, repeat=repeat, measure_time=measure_time)
         elif type == 'dataset':
-            dataset = benchmark_type.split('-')[2]
+            dataset = benchmark.split('-')[2]
             return eval_dataset_perplexity(model, tokenizer, dataset, device, repeat, measure_time)
         else:
             raise ValueError(f"Unknown benchmark type, choose from 'essay', 'news', or 'dataset'")

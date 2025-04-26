@@ -12,6 +12,7 @@ def get_transformer_sequential(model):
         return model.model.layers
     else:
         raise ValueError("Model does not have transformer or model attribute.")
+    
 def normalize(arr):
     mi = min(arr)
     ma = max(arr)
@@ -24,6 +25,7 @@ def normalize(arr):
             x = (x - mi)/(ma - mi)
     print(arr)
     return arr
+
 def estimate_importance(model, method='magnitude', prune_data=None, avg=False, 
                         norm='l1', target=None, T_order=1, batch_size=16):
     """
@@ -52,12 +54,12 @@ def estimate_importance(model, method='magnitude', prune_data=None, avg=False,
     
     return rankings
 
-def prune_model(model, rankings, pruning_rate=0.2, targets=[]):
+def prune_model(model, rankings, pruning_rate=0, pruning_layer_num=0, targets=[]):
     """
     Prune the targets module of the model based on the given rankings and pruning rate.
     Returns the pruned layers.
     """
-    num_layers = int(len(rankings) * pruning_rate)
+    num_layers = pruning_layer_num if pruning_layer_num > 0 else int(len(rankings) * pruning_rate)
     layers = range(len(rankings))
     layers_to_prune = sorted(layers, key=rankings.__getitem__)[:num_layers]
     layers_to_prune.sort(reverse=True) # Sort in descending order for safe indexing later in removal (remove from the end)
