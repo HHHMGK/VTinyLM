@@ -5,7 +5,7 @@ import json, csv
 from train import train_with_hf_dataset
 from model import load_model, load_tokenizer
 from eval import eval_essay_perplexity, eval
-from prune.prune import prune_model, estimate_importance, serial_pruning_model_generator
+from prune.prune import prune_model_generator, estimate_importance, serial_pruning_model_generator
 from prune.data4prune import get_examples
 
 
@@ -37,14 +37,12 @@ parser.add_argument('--save_path', type=str, default='./trained_model', help='Pa
 # For EVALuating mode
 parser.add_argument('--benchmark', type=str, default='perplexity-essay-vn', help='Benchmark to evaluate')
 parser.add_argument('--repeat', type=int, default=1, help='Number of evaluation to repeat')
-parser.add_argument('--modification', type=str, default='layer_reduction', choices=['layer_reduction','base'], help='Model modification method')
 parser.add_argument('--eval_base', action=argparse.BooleanOptionalAction, help='Evaluate base model or not')
-parser.add_argument('--layer_step', type=int, default=0, help='Step for layer modification')
 
 # For Pruing mode
-parser.add_argument('--pruning_method', type=str, default='magnitude', choices=['magnitude','gradient','activation','combine'], help='Pruning method')
-parser.add_argument('--pruning_rate', type=float, default=0, nargs='*', help='Pruning rate,')
-parser.add_argument('--pruning_layer_num', type=int, default=0, help='Number of layers to prune')
+parser.add_argument('--pruning_method', type=str, default='magnitude', choices=['magnitude','gradient','activation','combine','xconsecutive'], help='Pruning method')
+parser.add_argument('--pruning_rate', type=float, default=[], nargs='*', help='Pruning rate(s)')
+parser.add_argument('--pruning_layer_num', type=int, default=[], nargs='*', help='Number(s) of layers to prune')
 parser.add_argument('--pruning_target', type=str, default='', help='Pruning target')
 parser.add_argument('--pruning_data', type=str, default='c4', choices=['c4','bookcorpus','oscarvi'], help='Data for estimating importance')
 parser.add_argument('--pruning_n_samples', type=int, default=1000, help='Number of samples for estimating importance')
@@ -171,35 +169,41 @@ if args.run_mode == 'prune':
         prune_data = None
 
     print('Pruning model with method:', args.pruning_method)
-    ranking = estimate_importance(base_model, method=args.pruning_method, prune_data=prune_data, avg=args.pruning_avg,norm=args.pruning_mag_norm, target=args.pruning_target, T_order=args.pruning_grad_T_order, batch_size=args.pruning_batch_size)
-    print('Importance estimated with layers rankings:', ranking)    
-    
-    layers_pruned = prune_model(base_model, ranking, args.pruning_rate, args.pruning_layer_num, args.pruning_target)
-    results.append({'Modification': f"Layers pruned: {str(layers_pruned)}"})
-    print('Model pruned')
-    
-    eval_results = eval(base_model, tokenizer, args.benchmark, device, repeat=args.repeat, measure_time=args.measure_time, instructive=args.instructive_prompt)
-    results.append({'Modification':f'Pruned by {args.pruning_method} method', **eval_results})
+    if args.pruning_method == 'xconsecutive':
+        new_model_generator = serial_pruning_model_generator(base_model, num_layers=args.pruning_layer_num)
+        while True:
+            model, layers_pruned = next(new_model_generator, (None, None, None))
+            if model is None:
+                break
+            layer_start = layers_pruned[0]
+            layer_end = layers_pruned[-1]
+            print(f'Evaluating model with layers from {layer_start} to {layer_end} removed')
+            eval_results = eval(model, tokenizer, args.benchmark, device, 
+                              repeat=args.repeat, measure_time=args.measure_time, 
+                              instructive=args.instructive_prompt)
+            results.append({'Modification':f'Removed {layer_start} to {layer_end}', **eval_results})
+            
+            del model
+            gc.collect()
+            torch.cuda.empty_cache()
+    else:
+        ranking = estimate_importance(base_model, method=args.pruning_method, prune_data=prune_data, avg=args.pruning_avg,norm=args.pruning_mag_norm, target=args.pruning_target, T_order=args.pruning_grad_T_order, batch_size=args.pruning_batch_size)
+        print('Importance estimated with layers rankings:', ranking) 
+        new_model_generator = prune_model_generator(base_model, ranking, pruning_rate=args.pruning_rate, pruning_layer_num=args.pruning_layer_num)   
+        while True:
+            model, layers_pruned = next(new_model_generator, (None, None, None))
+            if model is None:
+                break
+            print(f'Evaluating model with layers {layers_pruned} pruned by {args.pruning_method} method')
+            eval_results = eval(base_model, tokenizer, args.benchmark, device, repeat=args.repeat, measure_time=args.measure_time, instructive=args.instructive_prompt)
+            results.append({'Modification':f'Layers {str(layers_pruned)} pruned by {args.pruning_method} method', **eval_results})
+
+            del model
+            gc.collect()
+            torch.cuda.empty_cache()
     
     write_result(results, args.output, benchmark_type=args.benchmark.split('-')[0], output_console=args.output_console)
     
     del base_model
     gc.collect()
     torch.cuda.empty_cache()
-
-# if args.run_mode == 'infer':
-#     print('Infering')
-    
-#     input = []
-#     if args.prompt:
-#         input.append(args.prompt)
-
-#     if args.file:
-#         with open(args.file,'r') as     f:
-#             input.extend(f.readlines())
-    
-#     model = load_model(args.base_model, bnb=args.bnb)
-#     tokenizer = load_tokenizer(args.base_model)
-    
-# if args.measure_time:
-#     print('Time elapsed:', time.time()-start_time)
