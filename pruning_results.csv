@@ -33,3 +33,12 @@ Modification,Perplexity_mean,Time_mean
 Base model,12.6773828125,1.2595305442810059
 "Layers pruned: [14, 10, 4]",,
 Pruned by combine method,14.62015625,0.7336404323577881
+Modification,Perplexity_mean,Time_mean
+"{'run_mode': 'prune', 'config': 'config.json', 'base_model': 'vinai/PhoGPT-4B-Chat', 'output': 'pruning_results.csv', 'instructive_prompt': False, 'measure_time': True, 'output_console': True, 'bnb': 'none', 'load_peft_path': None, 'model_path': '', 'dataset_path': '', 'block_size': 1024, 'precision': 'fp16', 'eval_after_train': None, 'save_full_model': None, 'save_path': './trained_model', 'benchmark': 'perplexity-essay-vn', 'repeat': 1, 'eval_base': True, 'pruning_method': 'xconsecutive', 'pruning_rate': [], 'pruning_layer_num': [5], 'pruning_target': '', 'pruning_data': 'c4', 'pruning_n_samples': 1000, 'pruning_rand_data': None, 'pruning_batch_size': 32, 'pruning_avg': None, 'pruning_mag_norm': 'l1', 'pruning_grad_T_order': 1}",,
+Base model,12.6555859375,1.0284225940704346
+Removed 0 to 4,nan,0.27613258361816406
+Removed 5 to 9,28.96375,0.28155994415283203
+Removed 10 to 14,16.66828125,0.28232359886169434
+Removed 15 to 19,14.876640625,0.28232264518737793
+Removed 20 to 24,18.5455078125,0.28176403045654297
+Removed 25 to 29,18.7643359375,0.2816758155822754
