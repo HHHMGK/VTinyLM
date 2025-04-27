@@ -1,0 +1,24 @@
+Modification,Perplexity_mean,Time_mean
+"{'run_mode': 'prune', 'config': 'config.json', 'base_model': 'vinai/PhoGPT-4B-Chat', 'output': 'results/pruning_results_grad.csv', 'instructive_prompt': False, 'measure_time': True, 'output_console': True, 'bnb': 'none', 'load_peft_path': None, 'model_path': '', 'dataset_path': '', 'block_size': 1024, 'precision': 'fp16', 'eval_after_train': None, 'save_full_model': None, 'save_path': './trained_model', 'benchmark': 'perplexity-essay-vn', 'repeat': 1, 'eval_base': True, 'pruning_method': 'gradient', 'pruning_rate': [], 'pruning_layer_num': [1, 2, 3, 4, 6], 'pruning_target': '', 'pruning_data': 'c4', 'pruning_n_samples': 128, 'pruning_rand_data': True, 'pruning_batch_size': 32, 'pruning_avg': None, 'pruning_mag_norm': 'l1', 'pruning_grad_T_order': 1}",,
+Base model,12.650546875,0.9330430030822754
+Layers [26] pruned by gradient method,13.077421875,0.33046889305114746
+"Layers [26, 28] pruned by gradient method",13.50703125,0.3165919780731201
+"Layers [26, 28, 25] pruned by gradient method",14.13734375,0.3052802085876465
+"Layers [26, 28, 25, 23] pruned by gradient method",15.1983203125,0.29222679138183594
+"Layers [26, 28, 25, 23, 22, 27] pruned by gradient method",19.2311328125,0.27222299575805664
+Modification,Perplexity_mean,Time_mean
+"{'run_mode': 'prune', 'config': 'config.json', 'base_model': 'vinai/PhoGPT-4B-Chat', 'output': 'results/pruning_results_grad.csv', 'instructive_prompt': False, 'measure_time': True, 'output_console': True, 'bnb': 'none', 'load_peft_path': None, 'model_path': '', 'dataset_path': '', 'block_size': 1024, 'precision': 'fp16', 'eval_after_train': None, 'save_full_model': None, 'save_path': './trained_model', 'benchmark': 'perplexity-dataset-oscarvi', 'repeat': 1, 'eval_base': True, 'pruning_method': 'gradient', 'pruning_rate': [], 'pruning_layer_num': [1, 2, 3, 4, 6], 'pruning_target': '', 'pruning_data': 'oscarvi', 'pruning_n_samples': 128, 'pruning_rand_data': True, 'pruning_batch_size': 32, 'pruning_avg': None, 'pruning_mag_norm': 'l1', 'pruning_grad_T_order': 1}",,
+Base model,37.37957763671875,0.8326911926269531
+Layers [1] pruned by gradient method,62.414306640625,0.31055593490600586
+"Layers [1, 0] pruned by gradient method",nan,0.2757837772369385
+"Layers [1, 0, 26] pruned by gradient method",nan,0.2651791572570801
+"Layers [1, 0, 26, 25] pruned by gradient method",nan,0.2563002109527588
+"Layers [1, 0, 26, 25, 23, 24] pruned by gradient method",nan,0.23761391639709473
+Modification,Perplexity_mean,Time_mean
+"{'run_mode': 'prune', 'config': 'config.json', 'base_model': 'vinai/PhoGPT-4B-Chat', 'output': 'results/pruning_results_grad.csv', 'instructive_prompt': False, 'measure_time': True, 'output_console': True, 'bnb': 'none', 'load_peft_path': None, 'model_path': '', 'dataset_path': '', 'block_size': 1024, 'precision': 'fp16', 'eval_after_train': None, 'save_full_model': None, 'save_path': './trained_model', 'benchmark': 'perplexity-essay-vn', 'repeat': 1, 'eval_base': True, 'pruning_method': 'gradient', 'pruning_rate': [], 'pruning_layer_num': [1, 2, 3, 4, 6], 'pruning_target': '', 'pruning_data': 'oscarvi', 'pruning_n_samples': 128, 'pruning_rand_data': True, 'pruning_batch_size': 32, 'pruning_avg': None, 'pruning_mag_norm': 'l1', 'pruning_grad_T_order': 1}",,
+Base model,12.650546875,0.9031822681427002
+Layers [1] pruned by gradient method,16.874375,0.33019423484802246
+"Layers [1, 26] pruned by gradient method",17.5656640625,0.31618285179138184
+"Layers [1, 26, 25] pruned by gradient method",17.200859375,0.30603528022766113
+"Layers [1, 26, 25, 23] pruned by gradient method",18.026484375,0.29494166374206543
+"Layers [1, 26, 25, 23, 0, 24] pruned by gradient method",nan,0.2638523578643799

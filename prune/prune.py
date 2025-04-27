@@ -1,4 +1,4 @@
-from .methods import ranking_by_grads, ranking_by_magnitude, ranking_by_activation
+from .methods import ranking_by_gradient, ranking_by_magnitude, ranking_by_activation
 import copy
 from math import isnan
 
@@ -33,24 +33,24 @@ def estimate_importance(model, method='magnitude', prune_data=None, avg=False,
     """
     if method == 'magnitude':
         return ranking_by_magnitude(model, norm=norm, avg=avg, target=target)
-    elif method == 'grads':
-        return ranking_by_grads(model, prune_data, avg=avg, T_order=T_order, batch_size=batch_size)
+    elif method == 'gradient':
+        return ranking_by_gradient(model, prune_data, avg=avg, T_order=T_order, batch_size=batch_size)
     elif method == 'activation':
         return ranking_by_activation(model, prune_data, avg=avg)
     elif method == 'combine':
         mag = ranking_by_magnitude(model, norm=norm, avg=avg, target=target)
         mag = normalize(mag)
         print(f"Mag: {mag}")
-        grads = ranking_by_grads(model, prune_data, avg=avg, T_order=T_order, batch_size=batch_size)
-        grads = normalize(grads)
-        print(f"Grads: {grads}")
+        grad = ranking_by_gradient(model, prune_data, avg=avg, T_order=T_order, batch_size=batch_size)
+        grad = normalize(grad)
+        print(f"gradient: {grad}")
         act = ranking_by_activation(model, prune_data, avg=avg)
         act = normalize(act)
         print(f"Act: {act}")
-        return [m*0.45 + g*0.45 + a*0.1 / 3 for m, g, a in zip(mag, grads, act)]
+        return [m*0.45 + g*0.45 + a*0.1 / 3 for m, g, a in zip(mag, grad, act)]
 
     else:
-        raise ValueError(f"Unknown method: {method}. Choose from 'magnitude', 'grads', or 'activation'")
+        raise ValueError(f"Unknown method: {method}. Choose from 'magnitude', 'gradient', or 'activation'")
     
     return rankings
 

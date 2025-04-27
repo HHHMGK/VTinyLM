@@ -24,7 +24,7 @@ fi
 # Method mag grad act combine			 
 # Prune layers: 2, 3, 4, 8
 # Prune dataset: c4, oscarvi
-# Benchmark dataset: essay, oscarvi, c4
+# Benchmark dataset: essay, oscarvi
 # Run combinations 
 
 case $experiment_type in
@@ -34,57 +34,131 @@ case $experiment_type in
         python main.py prune --base_model $MODEL \
         --pruning_method xconsecutive --pruning_layer_num 1 2 3 4 6 \
         --benchmark perplexity-dataset-oscarvi \
-        --eval_base --output pruning_results.csv --measure_time --output_console
+        --eval_base --output results/pruning_results_xcon.csv --measure_time --output_console
         
         python main.py prune --base_model $MODEL \
         --pruning_method xconsecutive --pruning_layer_num 1 2 3 4 6 \
         --benchmark perplexity-dataset-c4 \
-        --eval_base --output pruning_results.csv --measure_time --output_console
+        --eval_base --output results/pruning_results_xcon.csv --measure_time --output_console
         
         python main.py prune --base_model $MODEL \
         --pruning_method xconsecutive --pruning_layer_num 1 2 3 4 6 \
         --benchmark perplexity-essay-vn \
-        --eval_base --output pruning_results.csv --measure_time --output_console
-        
+        --eval_base --output results/pruning_results_xcon.csv --measure_time --output_console
+    
         ;;
     2)
         echo "Running each method pruning experiments..."
 
-        # Magnitude, 2 layer, c4, c4
-        python main.py prune --base_model vinai/PhoGPT-4B-Chat \
-        --pruning_method magnitude --pruning_layer_num 2 --pruning_avg --pruning_mag_norm l1 \
-        --pruning_data c4 --pruning_rand_data --pruning_n_sample 512 \
-        --benchmark perplexity-dataset-c4 \
-        --eval_base --output pruning_results.csv --measure_time --output_console
+        # Magnitude, c4, c4
+        # python main.py prune --base_model $MODEL \
+        # --pruning_method magnitude --pruning_layer_num 1 2 3 4 6 --pruning_mag_norm l1 \
+        # --pruning_data c4 --pruning_rand_data --pruning_n_sample 128 \
+        # --benchmark perplexity-dataset-c4 \
+        # --eval_base --output results/pruning_results_mag.csv --measure_time --output_console
+        # with l2 norm
+        # python main.py prune --base_model $MODEL \
+        # --pruning_method magnitude --pruning_layer_num 1 2 3 4 6 --pruning_mag_norm l2 \
+        # --pruning_data c4 --pruning_rand_data --pruning_n_sample 128 \
+        # --benchmark perplexity-dataset-c4 \
+        # --eval_base --output results/pruning_results_mag.csv --measure_time --output_console
+        # Magnitude, c4, essay
+        python main.py prune --base_model $MODEL \
+        --pruning_method magnitude --pruning_layer_num 1 2 3 4 6 --pruning_mag_norm l1 \
+        --pruning_data c4 --pruning_rand_data --pruning_n_sample 128 \
+        --benchmark perplexity-essay-vn \
+        --eval_base --output results/pruning_results_mag.csv --measure_time --output_console
 
+        # Magnitude, oscarvi, oscarvi
+        python main.py prune --base_model $MODEL \
+        --pruning_method magnitude --pruning_layer_num 1 2 3 4 6 --pruning_mag_norm l1 \
+        --pruning_data oscarvi --pruning_rand_data --pruning_n_sample 128 \
+        --benchmark perplexity-dataset-oscarvi \
+        --eval_base --output results/pruning_results_mag.csv --measure_time --output_console
+        # Magnitude, oscarvi, essay 
+        python main.py prune --base_model $MODEL \
+        --pruning_method magnitude --pruning_layer_num 1 2 3 4 6 --pruning_mag_norm l1 \
+        --pruning_data oscarvi --pruning_rand_data --pruning_n_sample 128 \
+        --benchmark perplexity-essay-vn \
+        --eval_base --output results/pruning_results_mag.csv --measure_time --output_console \
         
+        # Gradient, c4, c4
+        # python main.py prune --base_model $MODEL \
+        # --pruning_method gradient --pruning_layer_num 1 2 3 4 6 --pruning_mag_norm l1 \
+        # --pruning_data c4 --pruning_rand_data --pruning_n_sample 128 \
+        # --benchmark perplexity-dataset-c4 \
+        # --eval_base --output results/pruning_results_grad.csv --measure_time --output_console
+        # Gradient, c4, essay
+        python main.py prune --base_model $MODEL \
+        --pruning_method gradient --pruning_layer_num 1 2 3 4 6 --pruning_mag_norm l1 \
+        --pruning_data c4 --pruning_rand_data --pruning_n_sample 128 \
+        --benchmark perplexity-essay-vn \
+        --eval_base --output results/pruning_results_grad.csv --measure_time --output_console
+        # Gradient, oscarvi, oscarvi
+        python main.py prune --base_model $MODEL \
+        --pruning_method gradient --pruning_layer_num 1 2 3 4 6 --pruning_mag_norm l1 \
+        --pruning_data oscarvi --pruning_rand_data --pruning_n_sample 128 \
+        --benchmark perplexity-dataset-oscarvi \
+        --eval_base --output results/pruning_results_grad.csv --measure_time --output_console
+        # Gradient, oscarvi, essay
+        python main.py prune --base_model $MODEL \
+        --pruning_method gradient --pruning_layer_num 1 2 3 4 6 --pruning_mag_norm l1 \
+        --pruning_data oscarvi --pruning_rand_data --pruning_n_sample 128 \
+        --benchmark perplexity-essay-vn \
+        --eval_base --output results/pruning_results_grad.csv --measure_time --output_console
 
-        
+        # Activation, c4, c4
+        # python main.py prune --base_model $MODEL \
+        # --pruning_method activation --pruning_layer_num 1 2 3 4 6 --pruning_mag_norm l1 \
+        # --pruning_data c4 --pruning_rand_data --pruning_n_sample 128 \
+        # --benchmark perplexity-dataset-c4 \
+        # --eval_base --output results/pruning_results_act.csv --measure_time --output_console
+        # Activation, c4, essay
+        python main.py prune --base_model $MODEL \
+        --pruning_method activation --pruning_layer_num 1 2 3 4 6 --pruning_mag_norm l1 \
+        --pruning_data c4 --pruning_rand_data --pruning_n_sample 128 \
+        --benchmark perplexity-essay-vn \
+        --eval_base --output results/pruning_results_act.csv --measure_time --output_console
+
+        # Activation, oscarvi, oscarvi
+        python main.py prune --base_model $MODEL \
+        --pruning_method activation --pruning_layer_num 1 2 3 4 6 --pruning_mag_norm l1 \
+        --pruning_data oscarvi --pruning_rand_data --pruning_n_sample 128 \
+        --benchmark perplexity-dataset-oscarvi \
+        --eval_base --output results/pruning_results_act.csv --measure_time --output_console
+        # Activation, oscarvi, essay
+        python main.py prune --base_model $MODEL \
+        --pruning_method activation --pruning_layer_num 1 2 3 4 6 --pruning_mag_norm l1 \
+        --pruning_data oscarvi --pruning_rand_data --pruning_n_sample 128 \
+        --benchmark perplexity-essay-vn \
+        --eval_base --output results/pruning_results_act.csv --measure_time --output_console
+
+        ;;        
     3)
         echo "Running combined method pruning experiments..."
         
-        # Experiment 3.1: Combined method on essay benchmark
+        # Combined, c4, essay
         python main.py prune --base_model $MODEL \
-        --pruning_method combine --pruning_rate 0.2 --pruning_avg --pruning_mag_norm l1 \
+        --pruning_method combine --pruning_layer_num 1 2 3 4 6 --pruning_mag_norm l1 \
+        --pruning_data c4 --pruning_rand_data --pruning_n_sample 128 \
         --benchmark perplexity-essay-vn \
-        --pruning_data oscarvi --pruning_n_sample 512 --pruning_rand_data \
-        --eval_base --output pruning_combine_essay.csv --measure_time --output_console
-        
-        # Experiment 3.2: Combined method on Oscar-VI dataset benchmark
+        --eval_base --output results/pruning_results_comb.csv --measure_time --output_console
+
+        # Combined, oscarvi, oscarvi
         python main.py prune --base_model $MODEL \
-        --pruning_method combine --pruning_rate 0.2 --pruning_avg --pruning_mag_norm l1 \
+        --pruning_method combine --pruning_layer_num 1 2 3 4 6 --pruning_mag_norm l1 \
+        --pruning_data oscarvi --pruning_rand_data --pruning_n_sample 128 \
         --benchmark perplexity-dataset-oscarvi \
-        --pruning_data oscarvi --pruning_n_sample 512 --pruning_rand_data \
-        --eval_base --output pruning_combine_oscarvi.csv --measure_time --output_console
-        
-        # Experiment 3.3: Combined method with higher pruning rate
+        --eval_base --output results/pruning_results_comb.csv --measure_time --output_console
+
+        # Combined, oscarvi, essay
         python main.py prune --base_model $MODEL \
-        --pruning_method combine --pruning_rate 0.3 --pruning_avg --pruning_mag_norm l1 \
+        --pruning_method combine --pruning_layer_num 1 2 3 4 6 --pruning_mag_norm l1 \
+        --pruning_data oscarvi --pruning_rand_data --pruning_n_sample 128 \
         --benchmark perplexity-essay-vn \
-        --pruning_data oscarvi --pruning_n_sample 512 --pruning_rand_data \
-        --eval_base --output pruning_combine_higher_rate.csv --measure_time --output_console
+        --eval_base --output results/pruning_results_comb.csv --measure_time --output_console
+
         ;;
-        
     *)
         echo "Invalid argument: $experiment_type"
         echo "Usage: ./run_experiments.sh [1|2|3]"

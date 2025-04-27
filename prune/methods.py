@@ -2,7 +2,7 @@ import torch
 import gc
 from tqdm import tqdm
 
-def ranking_by_grads(model, input, avg=False, T_order=1, batch_size=0):
+def ranking_by_gradient(model, input, avg=False, T_order=1, batch_size=0):
     model.eval()
     model.zero_grad(set_to_none=True)
 
