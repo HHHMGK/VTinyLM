@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Check if an argument is provided
 if [ $# -eq 0 ]; then
     echo "Usage: ./run_experiments.sh [1|2|3]"
     echo "  1: Run basic consecutive method"
@@ -11,10 +10,8 @@ fi
 
 # Get the argument
 experiment_type=$1
-
-# Define base model
 MODEL=$2
-# "vinai/PhoGPT-4B-Chat"
+# "vinai/PhoGPT-4B-Chat" or "meta-llama/Llama-3.2-3B-Instruct"
 
 # Method mag grad act combine			 
 # Prune layers: 2, 3, 4, 8
@@ -26,14 +23,22 @@ case $experiment_type in
     1)
         echo "Running basic consecutive pruning experiments..."
 
-        python main.py prune --base_model vinai/PhoGPT-4B-Chat \
-        --pruning_method combine --pruning_rate 0.2 --pruning_avg --pruning_mag_norm l1 \
-        --pruning_data c4 --pruning_rand_data --pruning_n_sample 512 \
+        python main.py prune --base_model $MODEL \
+        --pruning_method xconsecutive --pruning_layer_num 1 2 3 4 6 \
         --benchmark perplexity-dataset-oscarvi \
-        --eval_base --output pruning_results.csv --measure_time --pruning_data oscarvi --output_console
+        --eval_base --output pruning_results.csv --measure_time --output_console
         
-
+        python main.py prune --base_model $MODEL \
+        --pruning_method xconsecutive --pruning_layer_num 1 2 3 4 6 \
+        --benchmark perplexity-dataset-c4 \
+        --eval_base --output pruning_results.csv --measure_time --output_console
         
+        python main.py prune --base_model $MODEL \
+        --pruning_method xconsecutive --pruning_layer_num 1 2 3 4 6 \
+        --benchmark perplexity-essay-vn \
+        --eval_base --output pruning_results.csv --measure_time --output_console
+        
+        ;;
     2)
         echo "Running each method pruning experiments..."
 
