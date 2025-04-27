@@ -2,7 +2,7 @@ import argparse
 import os, gc, time
 import torch
 import json, csv
-from train import train_with_hf_dataset
+# from train import train_with_hf_dataset
 from model import load_model, load_tokenizer
 from eval import eval_essay_perplexity, eval
 from prune.prune import prune_model_generator, estimate_importance, serial_pruning_model_generator
@@ -172,7 +172,7 @@ if args.run_mode == 'prune':
     if args.pruning_method == 'xconsecutive':
         new_model_generator = serial_pruning_model_generator(base_model, num_layers=args.pruning_layer_num)
         while True:
-            model, layers_pruned = next(new_model_generator, (None, None, None))
+            model, layers_pruned = next(new_model_generator, (None, None))
             if model is None:
                 break
             layer_start = layers_pruned[0]
@@ -191,7 +191,7 @@ if args.run_mode == 'prune':
         print('Importance estimated with layers rankings:', ranking) 
         new_model_generator = prune_model_generator(base_model, ranking, pruning_rate=args.pruning_rate, pruning_layer_num=args.pruning_layer_num)   
         while True:
-            model, layers_pruned = next(new_model_generator, (None, None, None))
+            model, layers_pruned = next(new_model_generator, (None, None))
             if model is None:
                 break
             print(f'Evaluating model with layers {layers_pruned} pruned by {args.pruning_method} method')
