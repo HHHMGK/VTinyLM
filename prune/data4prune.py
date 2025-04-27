@@ -68,7 +68,7 @@ def get_examples(dataset, tokenizer, n_samples, seq_len = 64, rand=False, raw=Fa
                     if sample.input_ids.shape[1] >= seq_len:
                         samples.append(sample.input_ids[:, :seq_len])
                         break
-                i += 1
+            i += 1
     if raw:
         return samples
     else: 
