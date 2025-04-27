@@ -11,7 +11,15 @@ fi
 # Get the argument
 experiment_type=$1
 MODEL=$2
-# "vinai/PhoGPT-4B-Chat" or "meta-llama/Llama-3.2-3B-Instruct"
+# phogpt = "vinai/PhoGPT-4B-Chat" or 
+# llama = "meta-llama/Llama-3.2-3B-Instruct"
+# Convert model name to full path
+if [ "$MODEL" = "phogpt" ]; then
+    MODEL="vinai/PhoGPT-4B-Chat"
+elif [ "$MODEL" = "llama" ]; then
+    MODEL="meta-llama/Llama-3.2-3B-Instruct"
+fi
+
 
 # Method mag grad act combine			 
 # Prune layers: 2, 3, 4, 8
