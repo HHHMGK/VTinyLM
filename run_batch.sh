@@ -1,10 +1,11 @@
 #!/bin/bash
 
 if [ $# -eq 0 ]; then
-    echo "Usage: ./run_experiments.sh [1|2|3] [phogpt|llama]"
+    echo "Usage: ./run_experiments.sh [1|2|3|all] [phogpt|llama]"
     echo "  1: Run basic consecutive method"
     echo "  2: Run each method"
     echo "  3: Run combine method"
+    echo "  all: Run all methods (1, 2, and 3)"
     exit 1
 fi
 
@@ -164,9 +165,23 @@ case $experiment_type in
         --eval_base --output results/pruning_results_comb.csv --measure_time --output_console
 
         ;;
+    all)
+        echo "Running ALL experiments (1, 2, and 3)..."
+        echo "-----------------------------------------"
+        echo "Running Case 1: Basic consecutive pruning..."
+        ./run_batch.sh 1 $MODEL
+        echo "-----------------------------------------"
+        echo "Running Case 2: Each method pruning..."
+        ./run_batch.sh 2 $MODEL
+        echo "-----------------------------------------"
+        echo "Running Case 3: Combined method pruning..."
+        ./run_batch.sh 3 $MODEL
+        echo "-----------------------------------------"
+        echo "All experiment sets completed!"
+        ;;
     *)
         echo "Invalid argument: $experiment_type"
-        echo "Usage: ./run_experiments.sh [1|2|3] [phogpt|llama]"
+        echo "Usage: ./run_experiments.sh [1|2|3|all] [phogpt|llama]"
         echo "  1: Run magnitude-based pruning experiments"
         echo "  2: Run gradient-based pruning experiments"
         echo "  3: Run combined method pruning experiments"
