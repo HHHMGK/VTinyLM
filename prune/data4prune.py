@@ -16,7 +16,6 @@ def get_examples(dataset, tokenizer, n_samples, seq_len = 64, rand=False, raw=Fa
             data_list.append(d)
             if len(data_list) == n_samples*5:
                 break
-        # data_list = list(traindata["train"].take(n_samples*10))
         traindata = Dataset.from_list(data_list)
     elif dataset == 'oscarvi':
         # 'https://huggingface.co/datasets/oscar-corpus/OSCAR-2301/blob/main/vi_meta/vi_meta_part_1.jsonl.zst'
@@ -28,9 +27,18 @@ def get_examples(dataset, tokenizer, n_samples, seq_len = 64, rand=False, raw=Fa
             data_list.append(d)
             if len(data_list) == n_samples*5:
                 break
-        # data_list = list(traindata["train"].take(n_samples*10))
         traindata = Dataset.from_list(data_list)
+    elif dataset == 'vnnews':
+        # Load the dataset from a local file datasets\vneconomy\vneconomy.json
+        # Use the 'content' as text
+        traindata = load_dataset(
+            "json", data_files="datasets/vneconomy/vneconomy.json",split='train'
+        )
+        traindata = traindata.select_columns(['content'])
+        traindata = traindata.rename_column('content', 'text')
 
+    print(f"Loaded {len(traindata)} samples from {dataset} dataset")
+    print(f'Begin sampling {"randomly" if rand else "sequentially"} {n_samples} samples with seq_len={seq_len}')
     samples, history = [], []
     if rand:
         for nn in range(n_samples):
@@ -55,20 +63,17 @@ def get_examples(dataset, tokenizer, n_samples, seq_len = 64, rand=False, raw=Fa
                 i = random.randint(0, sample.input_ids.shape[1] - seq_len)
                 samples.append(sample.input_ids[:, i:i+seq_len])
     else:
-        i = 0
-        for _ in range(n_samples):
-            while True:
-                if raw:
-                    sample = traindata[i]['text']
-                    if len(sample) >= seq_len:
-                        samples.append(sample[:seq_len])
-                        break
-                else:
-                    sample = tokenizer(traindata[i]['text'], return_tensors='pt')
-                    if sample.input_ids.shape[1] >= seq_len:
-                        samples.append(sample.input_ids[:, :seq_len])
-                        break
-            i += 1
+        for i in range(len(traindata)):
+            if raw:
+                sample = traindata[i]['text']
+                if len(sample) >= seq_len:
+                    samples.append(sample[:seq_len])
+            else:
+                sample = tokenizer(traindata[i]['text'], return_tensors='pt')
+                if sample.input_ids.shape[1] >= seq_len:
+                    samples.append(sample.input_ids[:, :seq_len])
+            if len(samples) >= n_samples:
+                break
     if raw:
         return samples
     else: 
