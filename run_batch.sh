@@ -92,7 +92,7 @@ case $experiment_type in
         python main.py prune --base_model $MODEL \
         --pruning_method gradient --pruning_layer_num 1 2 3 4 6 --pruning_mag_norm l1 \
         --pruning_data c4 --pruning_rand_data --pruning_n_sample 128 \
-        --benchmark perplexity-essay-vnnews \
+        --benchmark perplexity-dataset-vnnews \
         --eval_base --output results/pruning_results_grad.csv --measure_time --output_console
 
         # Gradient, oscarvi, essay
@@ -169,13 +169,13 @@ case $experiment_type in
         echo "Running ALL experiments (1, 2, and 3)..."
         echo "-----------------------------------------"
         echo "Running Case 1: Basic consecutive pruning..."
-        ./run_batch.sh 1 $MODEL
+        bash run_batch.sh 1 $MODEL
         echo "-----------------------------------------"
         echo "Running Case 2: Each method pruning..."
-        ./run_batch.sh 2 $MODEL
+        bash run_batch.sh 2 $MODEL
         echo "-----------------------------------------"
         echo "Running Case 3: Combined method pruning..."
-        ./run_batch.sh 3 $MODEL
+        bash run_batch.sh 3 $MODEL
         echo "-----------------------------------------"
         echo "All experiment sets completed!"
         ;;
