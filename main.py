@@ -123,21 +123,21 @@ if args.run_mode == 'eval':
                           instructive=args.instructive_prompt)
         results.append({'Modification':'Base model', **eval_results})
         
-    if args.modification == 'layer_reduction':
-        new_model_generator = serial_pruning_model_generator(base_model, num_layers=None, step=args.layer_step)
-        while True:
-            model, layer_start, layer_end = next(new_model_generator, (None, None, None))
-            if model is None:
-                break
-            print(f'Evaluating model with layers from {layer_start} to {layer_end} removed')
-            eval_results = eval(model, tokenizer, args.benchmark, device, 
-                              repeat=args.repeat, measure_time=args.measure_time, 
-                              instructive=args.instructive_prompt)
-            results.append({'Modification':f'Removed {layer_start} to {layer_end}', **eval_results})
+    # if args.modification == 'layer_reduction':
+    #     new_model_generator = serial_pruning_model_generator(base_model, num_layers=None, step=args.layer_step)
+    #     while True:
+    #         model, layer_start, layer_end = next(new_model_generator, (None, None, None))
+    #         if model is None:
+    #             break
+    #         print(f'Evaluating model with layers from {layer_start} to {layer_end} removed')
+    #         eval_results = eval(model, tokenizer, args.benchmark, device, 
+    #                           repeat=args.repeat, measure_time=args.measure_time, 
+    #                           instructive=args.instructive_prompt)
+    #         results.append({'Modification':f'Removed {layer_start} to {layer_end}', **eval_results})
             
-            del model
-            gc.collect()
-            torch.cuda.empty_cache()
+    #         del model
+    #         gc.collect()
+    #         torch.cuda.empty_cache()
 
     write_result(results, args.output, benchmark_type=benchmark_type, output_console=args.output_console)
     
