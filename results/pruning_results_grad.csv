@@ -1,0 +1,32 @@
+Modification,Perplexity_mean,Time_mean
+"{'run_mode': 'prune', 'config': 'config.json', 'base_model': 'vinai/PhoGPT-4B-Chat', 'output': 'results/pruning_results_grad.csv', 'instructive_prompt': False, 'measure_time': True, 'output_console': True, 'bnb': 'none', 'load_peft_path': None, 'model_path': '', 'dataset_path': '', 'block_size': 1024, 'precision': 'fp16', 'eval_after_train': None, 'save_full_model': None, 'save_path': './trained_model', 'benchmark': 'perplexity-essay-vn', 'eval_repeat': 5, 'eval_base': True, 'pruning_method': 'gradient', 'pruning_rate': [], 'pruning_layer_num': [1, 2, 3, 4, 6], 'pruning_target': '', 'pruning_data': 'c4', 'pruning_n_samples': 128, 'pruning_rand_data': True, 'pruning_batch_size': 32, 'pruning_avg': None, 'pruning_mag_norm': 'l1', 'pruning_grad_T_order': 1}",,
+Base model,12.6773828125,0.19351210594177246
+Layers [26] pruned by gradient method,13.10984375,0.19562644958496095
+"Layers [26, 28] pruned by gradient method",13.534453125000002,0.18689885139465331
+"Layers [26, 28, 25] pruned by gradient method",14.136484375,0.1828516960144043
+"Layers [26, 28, 25, 22] pruned by gradient method",15.235078124999998,0.17584705352783203
+"Layers [26, 28, 25, 22, 23, 27] pruned by gradient method",19.1247265625,0.16256098747253417
+Modification,Perplexity_mean,Time_mean
+"{'run_mode': 'prune', 'config': 'config.json', 'base_model': 'vinai/PhoGPT-4B-Chat', 'output': 'results/pruning_results_grad.csv', 'instructive_prompt': False, 'measure_time': True, 'output_console': True, 'bnb': 'none', 'load_peft_path': None, 'model_path': '', 'dataset_path': '', 'block_size': 1024, 'precision': 'fp16', 'eval_after_train': None, 'save_full_model': None, 'save_path': './trained_model', 'benchmark': 'perplexity-dataset-vnnews', 'eval_repeat': 5, 'eval_base': True, 'pruning_method': 'gradient', 'pruning_rate': [], 'pruning_layer_num': [1, 2, 3, 4, 6], 'pruning_target': '', 'pruning_data': 'c4', 'pruning_n_samples': 128, 'pruning_rand_data': True, 'pruning_batch_size': 32, 'pruning_avg': None, 'pruning_mag_norm': 'l1', 'pruning_grad_T_order': 1}",,
+Base model,22.085784912109375,0.11016931533813476
+Layers [26] pruned by gradient method,23.46649169921875,0.11803851127624512
+"Layers [26, 28] pruned by gradient method",24.727081298828125,0.11411418914794921
+"Layers [26, 28, 25] pruned by gradient method",26.41680908203125,0.11573338508605957
+"Layers [26, 28, 25, 27] pruned by gradient method",31.6707763671875,0.1097334861755371
+"Layers [26, 28, 25, 27, 23, 22] pruned by gradient method",45.72796630859375,0.09752426147460938
+Modification,Perplexity_mean,Time_mean
+"{'run_mode': 'prune', 'config': 'config.json', 'base_model': 'vinai/PhoGPT-4B-Chat', 'output': 'results/pruning_results_grad.csv', 'instructive_prompt': False, 'measure_time': True, 'output_console': True, 'bnb': 'none', 'load_peft_path': None, 'model_path': '', 'dataset_path': '', 'block_size': 1024, 'precision': 'fp16', 'eval_after_train': None, 'save_full_model': None, 'save_path': './trained_model', 'benchmark': 'perplexity-essay-vn', 'eval_repeat': 5, 'eval_base': True, 'pruning_method': 'gradient', 'pruning_rate': [], 'pruning_layer_num': [1, 2, 3, 4, 6], 'pruning_target': '', 'pruning_data': 'oscarvi', 'pruning_n_samples': 128, 'pruning_rand_data': True, 'pruning_batch_size': 32, 'pruning_avg': None, 'pruning_mag_norm': 'l1', 'pruning_grad_T_order': 1}",,
+Base model,12.6773828125,0.19240221977233887
+Layers [1] pruned by gradient method,16.77078125,0.19827055931091309
+"Layers [1, 0] pruned by gradient method",nan,0.18716192245483398
+"Layers [1, 0, 26] pruned by gradient method",nan,0.17704925537109376
+"Layers [1, 0, 26, 23] pruned by gradient method",nan,0.17289314270019532
+"Layers [1, 0, 26, 23, 27, 25] pruned by gradient method",nan,0.1610105514526367
+Modification,Perplexity_mean,Time_mean
+"{'run_mode': 'prune', 'config': 'config.json', 'base_model': 'vinai/PhoGPT-4B-Chat', 'output': 'results/pruning_results_grad.csv', 'instructive_prompt': False, 'measure_time': True, 'output_console': True, 'bnb': 'none', 'load_peft_path': None, 'model_path': '', 'dataset_path': '', 'block_size': 1024, 'precision': 'fp16', 'eval_after_train': None, 'save_full_model': None, 'save_path': './trained_model', 'benchmark': 'perplexity-dataset-vnnews', 'eval_repeat': 5, 'eval_base': True, 'pruning_method': 'gradient', 'pruning_rate': [], 'pruning_layer_num': [1, 2, 3, 4, 6], 'pruning_target': '', 'pruning_data': 'oscarvi', 'pruning_n_samples': 128, 'pruning_rand_data': True, 'pruning_batch_size': 32, 'pruning_avg': None, 'pruning_mag_norm': 'l1', 'pruning_grad_T_order': 1}",,
+Base model,22.085784912109375,0.11695780754089355
+Layers [1] pruned by gradient method,26.173095703125,0.11701831817626954
+"Layers [1, 26] pruned by gradient method",27.7652587890625,0.11083126068115234
+"Layers [1, 26, 23] pruned by gradient method",31.31903076171875,0.11019811630249024
+"Layers [1, 26, 23, 25] pruned by gradient method",30.756591796875,0.10327978134155273
+"Layers [1, 26, 23, 25, 24, 27] pruned by gradient method",38.63568115234375,0.10328159332275391

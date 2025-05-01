@@ -1,0 +1,32 @@
+Modification,Perplexity_mean,Time_mean
+"{'run_mode': 'prune', 'config': 'config.json', 'base_model': 'vinai/PhoGPT-4B-Chat', 'output': 'results/pruning_results_act.csv', 'instructive_prompt': False, 'measure_time': True, 'output_console': True, 'bnb': 'none', 'load_peft_path': None, 'model_path': '', 'dataset_path': '', 'block_size': 1024, 'precision': 'fp16', 'eval_after_train': None, 'save_full_model': None, 'save_path': './trained_model', 'benchmark': 'perplexity-essay-vn', 'eval_repeat': 5, 'eval_base': True, 'pruning_method': 'activation', 'pruning_rate': [], 'pruning_layer_num': [1, 2, 3, 4, 6], 'pruning_target': '', 'pruning_data': 'c4', 'pruning_n_samples': 128, 'pruning_rand_data': True, 'pruning_batch_size': 32, 'pruning_avg': None, 'pruning_mag_norm': 'l1', 'pruning_grad_T_order': 1}",,
+Base model,12.6773828125,0.19118070602416992
+Layers [3] pruned by activation method,14.17234375,0.21486425399780273
+"Layers [3, 5] pruned by activation method",15.3396484375,0.18170566558837892
+"Layers [3, 5, 4] pruned by activation method",13.024374999999997,0.17711453437805175
+"Layers [3, 5, 4, 1] pruned by activation method",60.844296875,0.17039189338684083
+"Layers [3, 5, 4, 1, 2, 9] pruned by activation method",123.97859375,0.16130704879760743
+Modification,Perplexity_mean,Time_mean
+"{'run_mode': 'prune', 'config': 'config.json', 'base_model': 'vinai/PhoGPT-4B-Chat', 'output': 'results/pruning_results_act.csv', 'instructive_prompt': False, 'measure_time': True, 'output_console': True, 'bnb': 'none', 'load_peft_path': None, 'model_path': '', 'dataset_path': '', 'block_size': 1024, 'precision': 'fp16', 'eval_after_train': None, 'save_full_model': None, 'save_path': './trained_model', 'benchmark': 'perplexity-dataset-vnnews', 'eval_repeat': 5, 'eval_base': True, 'pruning_method': 'activation', 'pruning_rate': [], 'pruning_layer_num': [1, 2, 3, 4, 6], 'pruning_target': '', 'pruning_data': 'c4', 'pruning_n_samples': 128, 'pruning_rand_data': True, 'pruning_batch_size': 32, 'pruning_avg': None, 'pruning_mag_norm': 'l1', 'pruning_grad_T_order': 1}",,
+Base model,22.085784912109375,0.11733298301696778
+Layers [3] pruned by activation method,25.7042236328125,0.12230587005615234
+"Layers [3, 5] pruned by activation method",31.537628173828125,0.115378999710083
+"Layers [3, 5, 4] pruned by activation method",35.729095458984375,0.1135127067565918
+"Layers [3, 5, 4, 1] pruned by activation method",165.29296875,0.10870566368103027
+"Layers [3, 5, 4, 1, 2, 9] pruned by activation method",280.02099609375,0.10034098625183105
+Modification,Perplexity_mean,Time_mean
+"{'run_mode': 'prune', 'config': 'config.json', 'base_model': 'vinai/PhoGPT-4B-Chat', 'output': 'results/pruning_results_act.csv', 'instructive_prompt': False, 'measure_time': True, 'output_console': True, 'bnb': 'none', 'load_peft_path': None, 'model_path': '', 'dataset_path': '', 'block_size': 1024, 'precision': 'fp16', 'eval_after_train': None, 'save_full_model': None, 'save_path': './trained_model', 'benchmark': 'perplexity-essay-vn', 'eval_repeat': 5, 'eval_base': True, 'pruning_method': 'activation', 'pruning_rate': [], 'pruning_layer_num': [1, 2, 3, 4, 6], 'pruning_target': '', 'pruning_data': 'oscarvi', 'pruning_n_samples': 128, 'pruning_rand_data': True, 'pruning_batch_size': 32, 'pruning_avg': None, 'pruning_mag_norm': 'l1', 'pruning_grad_T_order': 1}",,
+Base model,12.6773828125,0.19046096801757811
+Layers [5] pruned by activation method,12.2708203125,0.21711993217468262
+"Layers [5, 3] pruned by activation method",15.3396484375,0.19547300338745116
+"Layers [5, 3, 1] pruned by activation method",54.38859375,0.17657532691955566
+"Layers [5, 3, 1, 4] pruned by activation method",60.844296875,0.17094531059265136
+"Layers [5, 3, 1, 4, 2, 6] pruned by activation method",1037.213125,0.15794110298156738
+Modification,Perplexity_mean,Time_mean
+"{'run_mode': 'prune', 'config': 'config.json', 'base_model': 'vinai/PhoGPT-4B-Chat', 'output': 'results/pruning_results_act.csv', 'instructive_prompt': False, 'measure_time': True, 'output_console': True, 'bnb': 'none', 'load_peft_path': None, 'model_path': '', 'dataset_path': '', 'block_size': 1024, 'precision': 'fp16', 'eval_after_train': None, 'save_full_model': None, 'save_path': './trained_model', 'benchmark': 'perplexity-dataset-vnnews', 'eval_repeat': 5, 'eval_base': True, 'pruning_method': 'activation', 'pruning_rate': [], 'pruning_layer_num': [1, 2, 3, 4, 6], 'pruning_target': '', 'pruning_data': 'oscarvi', 'pruning_n_samples': 128, 'pruning_rand_data': True, 'pruning_batch_size': 32, 'pruning_avg': None, 'pruning_mag_norm': 'l1', 'pruning_grad_T_order': 1}",,
+Base model,22.085784912109375,0.10809493064880371
+Layers [5] pruned by activation method,23.074462890625,0.1178062915802002
+"Layers [5, 3] pruned by activation method",31.537628173828125,0.113731050491333
+"Layers [5, 3, 1] pruned by activation method",107.80078125,0.11356940269470214
+"Layers [5, 3, 1, 4] pruned by activation method",165.29296875,0.1052919864654541
+"Layers [5, 3, 1, 4, 2, 6] pruned by activation method",2948.43359375,0.09790196418762206
