@@ -1,5 +1,5 @@
 from pathlib import Path
-import copy, json, time
+import copy, json
 import torch
 import numpy as np
 from metrics import Perplexity
@@ -24,33 +24,45 @@ def eval_perplexity(model, tokenizer, prompts, device, repeat=1, measure_time=Fa
         
     # model = model.to(device)
     # model.eval()
+
+        # --- Warm-up Run ---
+    if repeat > 1 or measure_time: # Only warm-up if timing or multiple runs matter
+        print("Performing GPU warm-up run...")
+        with torch.no_grad():
+            # Use a small subset or the first prompt for a quick warm-up
+            _ = perplexity._compute(prompts, model, tokenizer, device,measure_time=measure_time)
+        torch.cuda.synchronize() # Ensure warm-up is complete before proceeding
+        print("Warm-up complete.")
+    # --- End Warm-up ---
+
     with torch.no_grad():
         perplexity_score = []
         if measure_time:
             timing = []
             for i in range(repeat):
-                start = time.time()
-                perplexity_score.append(perplexity._compute(prompts, model, tokenizer, device)['mean_perplexity'])
-                timing.append(time.time()-start)
+                ppl = perplexity._compute(prompts, model, tokenizer, device, measure_time=measure_time)
+                perplexity_score.append(ppl['mean_perplexity'])
+                timing.append(ppl['runtime'])
         else:
             for i in range(repeat):
-                perplexity_score.append(perplexity._compute(prompts, model, tokenizer, device)['mean_perplexity'])
+                perplexity_score.append(perplexity._compute(prompts, model, tokenizer, device, measure_time=measure_time)['mean_perplexity'])
 
     perplexity_mean = perplexity_score[0]
-    perplexity_stddev = 0
-    time_mean, time_stddev = 0, 0
+    # perplexity_stddev = 0
+    time_mean = 0
+    # time_stddev = 0
     if measure_time:
         time_mean = timing[0]
-        time_stddev = 0
+        # time_stddev = 0
         
     if repeat > 1:
         perplexity_mean = np.mean(perplexity_score)
-        perplexity_stddev = np.std(perplexity_score)
+        # perplexity_stddev = np.std(perplexity_score)
 
         if measure_time:
             time_mean = np.mean(timing)
-            time_stddev = np.std(timing)
-
+            # time_stddev = np.std(timing)
+    # print(f'Execution time: {time_mean:.2f} seconds with stddev {time_stddev:.2f} seconds')
     # return {'perplexity': (perplexity_mean, perplexity_stddev), 'time': (time_mean, time_stddev) if measure_time else None}
     return {'Perplexity_mean':perplexity_mean, # 'Perplexity_stddev':perplexity_stddev, 
                             'Time_mean':time_mean} #'Time_stddev':time_stddev}

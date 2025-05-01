@@ -1,15 +1,17 @@
-from datasets import load_dataset, Dataset
+from datasets import load_dataset, Dataset, DownloadMode
 import torch
 import random
 
 def get_examples(dataset, tokenizer, n_samples, seq_len = 64, rand=False, raw=False):
     if dataset == 'c4':
         traindata = load_dataset(
-            'allenai/c4', data_files='en/c4-train.00000-of-01024.json.gz', split='train'
+            'allenai/c4', data_files='en/c4-train.00000-of-01024.json.gz', split='train', 
+            # streaming=True, download_mode=DownloadMode.FORCE_REDOWNLOAD
         )
     elif dataset == 'bookcorpus':
         traindata = load_dataset(
-            'bookcorpus', split='train' #, streaming=True
+            'bookcorpus', split='train'
+            # , streaming=True, download_mode=DownloadMode.FORCE_REDOWNLOAD
         )
         # data_list=[]
         # for d in traindata:
@@ -20,14 +22,15 @@ def get_examples(dataset, tokenizer, n_samples, seq_len = 64, rand=False, raw=Fa
     elif dataset == 'oscarvi':
         # 'https://huggingface.co/datasets/oscar-corpus/OSCAR-2301/blob/main/vi_meta/vi_meta_part_1.jsonl.zst'
         traindata = load_dataset(
-            'oscar-corpus/OSCAR-2301', language='vi', split='train', trust_remote_code=True, # streaming=True,
+            'oscar-corpus/OSCAR-2301', language='vi', data_files='vi_meta/vi_meta_part_1.jsonl.zst', split='train', trust_remote_code=True
+            ,streaming=True
         )
-        # data_list=[]
-        # for d in traindata:
-        #     data_list.append(d)
-        #     if len(data_list) == n_samples*5:
-        #         break
-        # traindata = Dataset.from_list(data_list)
+        data_list=[]
+        for d in traindata:
+            data_list.append(d)
+            if len(data_list) == n_samples*5:
+                break
+        traindata = Dataset.from_list(data_list)
     elif dataset == 'vnnews':
         # Load the dataset from a local file datasets\vneconomy\vneconomy.json
         # Use the 'content' as text

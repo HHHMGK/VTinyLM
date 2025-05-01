@@ -2,7 +2,7 @@
 import evaluate
 from evaluate import logging
 import datasets
-
+import time
 import numpy as np
 from torch.nn import CrossEntropyLoss
 import torch
@@ -10,7 +10,7 @@ import torch
 class Perplexity(evaluate.Metric):
     """
     Custom perplexity metric from Huggingface evaluate module
-    Changed the implementation of _compute for custom model and tokenizer
+    Changed the implementation of _compute for custom model, tokenizer and timing
     """
     def _info(self):
         return evaluate.MetricInfo(
@@ -27,7 +27,7 @@ class Perplexity(evaluate.Metric):
         )
 
     def _compute(
-        self, predictions, model, tokenizer, device, batch_size: int = 16, add_start_token: bool = True, max_length=None
+        self, predictions, model, tokenizer, device, batch_size: int = 16, add_start_token: bool = True, max_length=None, measure_time=False
     ):
         # if batch_size > 1 (which generally leads to padding being required), and
         # if there is not an already assigned pad_token, assign an existing
@@ -75,6 +75,8 @@ class Perplexity(evaluate.Metric):
         ppls = []
         loss_fct = CrossEntropyLoss(reduction="none")
 
+        if measure_time:
+            total_model_runtime = 0
         for start_index in logging.tqdm(range(0, len(encoded_texts), batch_size)):
             end_index = min(start_index + batch_size, len(encoded_texts))
             encoded_batch = encoded_texts[start_index:end_index]
@@ -89,9 +91,13 @@ class Perplexity(evaluate.Metric):
 
             labels = encoded_batch
 
+            if measure_time:
+                time_start = time.time()
             with torch.no_grad():
                 out_logits = model(encoded_batch, attention_mask=attn_mask).logits
-
+            if measure_time:
+                total_model_runtime += time.time() - time_start
+            
             shift_logits = out_logits[..., :-1, :].contiguous()
             shift_labels = labels[..., 1:].contiguous()
             shift_attention_mask_batch = attn_mask[..., 1:].contiguous()
@@ -103,5 +109,5 @@ class Perplexity(evaluate.Metric):
 
             ppls += perplexity_batch.tolist()
 
-        return {"perplexities": ppls, "mean_perplexity": np.mean(ppls)}
+        return {"perplexities": ppls, "mean_perplexity": np.mean(ppls), "runtime": total_model_runtime if measure_time else None}
 

@@ -36,7 +36,7 @@ parser.add_argument('--save_path', type=str, default='./trained_model', help='Pa
 
 # For EVALuating mode
 parser.add_argument('--benchmark', type=str, default='perplexity-essay-vn', help='Benchmark to evaluate')
-parser.add_argument('--repeat', type=int, default=1, help='Number of evaluation to repeat')
+parser.add_argument('--eval_repeat', type=int, default=1, help='Number of evaluation to repeat')
 parser.add_argument('--eval_base', action=argparse.BooleanOptionalAction, help='Evaluate base model or not')
 
 # For Pruing mode
@@ -95,21 +95,15 @@ if args.run_mode == 'train':
 
     if args.eval_after_train:
         print('Evaluating model')
-        eval_results = eval_essay_perplexity(model, tokenizer, device, lang='vn', instructive=args.instructive_prompt,repeat=args.repeat, measure_time=args.measure_time)
+        eval_results = eval_essay_perplexity(model, tokenizer, device, lang='vn', instructive=args.instructive_prompt,repeat=args.eval_repeat, measure_time=args.measure_time)
         print('Evaluation results:', eval_results)
     
     if args.save_full_model:
         model.save_pretrained(args.save_path, from_pt=True)
 
 if args.run_mode == 'eval':
-    print('Evaluating with benchmark:', args.benchmark)
-    
-    if args.load_peft_path is not None:
-        print('Loading model', args.base_model, 'with Peft adapter:', args.load_peft_path)
-        base_model = load_model(args.base_model, bnb=args.bnb, peft_path=args.load_peft_path, device=device)
-    else:
-        print('Loading base model:', args.base_model)
-        base_model = load_model(args.base_model, bnb=args.bnb, device=device)
+    print(f'Loading {"model " + args.base_model + " with Peft adapter: " + args.load_peft_path if args.load_peft_path else "base model: " + args.base_model}')
+    base_model = load_model(args.base_model, bnb=args.bnb, peft_path=args.load_peft_path, device=device)
     tokenizer = load_tokenizer(args.base_model)
     print('Model and Tokenizer loaded')
      
@@ -119,7 +113,7 @@ if args.run_mode == 'eval':
     if args.eval_base:
         print('Evaluating base model')
         eval_results = eval(base_model, tokenizer, args.benchmark, device, 
-                          repeat=args.repeat, measure_time=args.measure_time, 
+                          repeat=args.eval_repeat, measure_time=args.measure_time, 
                           instructive=args.instructive_prompt)
         results.append({'Modification':'Base model', **eval_results})
         
@@ -131,7 +125,7 @@ if args.run_mode == 'eval':
     #             break
     #         print(f'Evaluating model with layers from {layer_start} to {layer_end} removed')
     #         eval_results = eval(model, tokenizer, args.benchmark, device, 
-    #                           repeat=args.repeat, measure_time=args.measure_time, 
+    #                           repeat=args.eval_repeat, measure_time=args.measure_time, 
     #                           instructive=args.instructive_prompt)
     #         results.append({'Modification':f'Removed {layer_start} to {layer_end}', **eval_results})
             
@@ -157,7 +151,7 @@ if args.run_mode == 'prune':
     if args.eval_base:
         print('Evaluating base model')
 
-        eval_results = eval(base_model, tokenizer, args.benchmark, device, repeat=args.repeat, measure_time=args.measure_time, instructive=args.instructive_prompt)
+        eval_results = eval(base_model, tokenizer, args.benchmark, device, repeat=args.eval_repeat, measure_time=args.measure_time, instructive=args.instructive_prompt)
 
         results.append({'Modification':'Base model', **eval_results})
 
@@ -179,7 +173,7 @@ if args.run_mode == 'prune':
             layer_end = layers_pruned[-1]
             print(f'Evaluating model with layers from {layer_start} to {layer_end} removed')
             eval_results = eval(model, tokenizer, args.benchmark, device, 
-                              repeat=args.repeat, measure_time=args.measure_time, 
+                              repeat=args.eval_repeat, measure_time=args.measure_time, 
                               instructive=args.instructive_prompt)
             results.append({'Modification':f'Removed {layer_start} to {layer_end}', **eval_results})
             
@@ -195,7 +189,7 @@ if args.run_mode == 'prune':
             if model is None:
                 break
             print(f'Evaluating model with layers {layers_pruned} pruned by {args.pruning_method} method')
-            eval_results = eval(base_model, tokenizer, args.benchmark, device, repeat=args.repeat, measure_time=args.measure_time, instructive=args.instructive_prompt)
+            eval_results = eval(base_model, tokenizer, args.benchmark, device, repeat=args.eval_repeat, measure_time=args.measure_time, instructive=args.instructive_prompt)
             results.append({'Modification':f'Layers {str(layers_pruned)} pruned by {args.pruning_method} method', **eval_results})
 
             del model
