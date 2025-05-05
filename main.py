@@ -4,7 +4,7 @@ import torch
 import json, csv
 # from train import train_with_hf_dataset
 from model import load_model, load_tokenizer
-from eval import eval_essay_perplexity, eval
+from eval import eval
 from prune.prune import prune_model_generator, estimate_importance, serial_pruning_model_generator
 from prune.data4prune import get_examples
 
@@ -26,13 +26,13 @@ parser.add_argument('--bnb', type=str, default='none', choices=['none', '4bit', 
 parser.add_argument('--load_peft_path', type=str, default=None, help='Path to load Peft model')
 
 # For TRAINing mode
-parser.add_argument('--model_path', type=str, default='', help='Path to model file')
-parser.add_argument('--dataset_path', type=str, default='', help='Path to dataset file')
-parser.add_argument('--block_size', type=int, default=1024, help='Size of text chunk')
-parser.add_argument('--precision', type=str, default='fp16', choices=['fp16','fp32'], help='Precision mode')
-parser.add_argument('--eval_after_train', action=argparse.BooleanOptionalAction, help='Evaluate after training or not')
-parser.add_argument('--save_full_model', action=argparse.BooleanOptionalAction, help='Save full model or just LoRA adapter')
-parser.add_argument('--save_path', type=str, default='./trained_model', help='Path to save model')
+# parser.add_argument('--model_path', type=str, default='', help='Path to model file')
+# parser.add_argument('--dataset_path', type=str, default='', help='Path to dataset file')
+# parser.add_argument('--block_size', type=int, default=1024, help='Size of text chunk')
+# parser.add_argument('--precision', type=str, default='fp16', choices=['fp16','fp32'], help='Precision mode')
+# parser.add_argument('--eval_after_train', action=argparse.BooleanOptionalAction, help='Evaluate after training or not')
+# parser.add_argument('--save_full_model', action=argparse.BooleanOptionalAction, help='Save full model or just LoRA adapter')
+# parser.add_argument('--save_path', type=str, default='./trained_model', help='Path to save model')
 
 # For EVALuating mode
 parser.add_argument('--benchmark', type=str, default='perplexity-essay-vn', help='Benchmark to evaluate')
@@ -47,7 +47,7 @@ parser.add_argument('--pruning_target', type=str, default='', help='Pruning targ
 parser.add_argument('--pruning_data', type=str, default='c4', choices=['c4','bookcorpus','oscarvi'], help='Data for estimating importance')
 parser.add_argument('--pruning_n_samples', type=int, default=1000, help='Number of samples for estimating importance')
 parser.add_argument('--pruning_rand_data', action=argparse.BooleanOptionalAction, help='Random data for estimating importance')
-parser.add_argument('--pruning_batch_size', type=int, default=32, help='Batch size for pruning')
+parser.add_argument('--pruning_batch_size', type=int, default=16, help='Batch size for pruning')
 parser.add_argument('--pruning_avg', action=argparse.BooleanOptionalAction, help='Average pruning or not')
 parser.add_argument('--pruning_mag_norm', type=str, default='l1', choices=['l1','l2'], help='Norm for pruning')
 parser.add_argument('--pruning_grad_T_order', type=int, default=1, help='T order for pruning')
@@ -80,26 +80,26 @@ print('Device using:', device)
 if args.measure_time:
     start_time = time.time()
 
-if args.run_mode == 'train':
-    if args.load_peft_path is not None:
-        print('Loading model', args.base_model, 'with Peft adapter:', args.load_peft_path)
-        model = load_model(args.base_model, bnb=args.bnb, peft_path=args.load_peft_path, device=device)
-    else:
-        print('Loading base model:', args.base_model)
-        model = load_model(args.base_model, bnb=args.bnb, device=device)
-    tokenizer = load_tokenizer(args.base_model)
-    print('Model and Tokenizer loaded')
+# if args.run_mode == 'train':
+#     if args.load_peft_path is not None:
+#         print('Loading model', args.base_model, 'with Peft adapter:', args.load_peft_path)
+#         model = load_model(args.base_model, bnb=args.bnb, peft_path=args.load_peft_path, device=device)
+#     else:
+#         print('Loading base model:', args.base_model)
+#         model = load_model(args.base_model, bnb=args.bnb, device=device)
+#     tokenizer = load_tokenizer(args.base_model)
+#     print('Model and Tokenizer loaded')
     
-    print('ReTraining model')
-    train_with_hf_dataset(model, tokenizer, args.dataset_path, max_seq_length=args.block_size, precision=args.precision, technique='lora', device=device)
+#     print('ReTraining model')
+#     train_with_hf_dataset(model, tokenizer, args.dataset_path, max_seq_length=args.block_size, precision=args.precision, technique='lora', device=device)
 
-    if args.eval_after_train:
-        print('Evaluating model')
-        eval_results = eval_essay_perplexity(model, tokenizer, device, lang='vn', instructive=args.instructive_prompt,repeat=args.eval_repeat, measure_time=args.measure_time)
-        print('Evaluation results:', eval_results)
+#     if args.eval_after_train:
+#         print('Evaluating model')
+#         eval_results = eval_essay_perplexity(model, tokenizer, device, lang='vn', instructive=args.instructive_prompt,repeat=args.eval_repeat, measure_time=args.measure_time)
+#         print('Evaluation results:', eval_results)
     
-    if args.save_full_model:
-        model.save_pretrained(args.save_path, from_pt=True)
+#     if args.save_full_model:
+#         model.save_pretrained(args.save_path, from_pt=True)
 
 if args.run_mode == 'eval':
     print(f'Loading {"model " + args.base_model + " with Peft adapter: " + args.load_peft_path if args.load_peft_path else "base model: " + args.base_model}')
@@ -116,22 +116,6 @@ if args.run_mode == 'eval':
                           repeat=args.eval_repeat, measure_time=args.measure_time, 
                           instructive=args.instructive_prompt)
         results.append({'Modification':'Base model', **eval_results})
-        
-    # if args.modification == 'layer_reduction':
-    #     new_model_generator = serial_pruning_model_generator(base_model, num_layers=None, step=args.layer_step)
-    #     while True:
-    #         model, layer_start, layer_end = next(new_model_generator, (None, None, None))
-    #         if model is None:
-    #             break
-    #         print(f'Evaluating model with layers from {layer_start} to {layer_end} removed')
-    #         eval_results = eval(model, tokenizer, args.benchmark, device, 
-    #                           repeat=args.eval_repeat, measure_time=args.measure_time, 
-    #                           instructive=args.instructive_prompt)
-    #         results.append({'Modification':f'Removed {layer_start} to {layer_end}', **eval_results})
-            
-    #         del model
-    #         gc.collect()
-    #         torch.cuda.empty_cache()
 
     write_result(results, args.output, benchmark_type=benchmark_type, output_console=args.output_console)
     

@@ -1,19 +1,18 @@
 # Huggingface
-import evaluate
-from evaluate import logging
+from evaluate import logging, Metric, MetricInfo
 import datasets
 import time
 import numpy as np
 from torch.nn import CrossEntropyLoss
 import torch
 
-class Perplexity(evaluate.Metric):
+class Perplexity(Metric):
     """
     Custom perplexity metric from Huggingface evaluate module
     Changed the implementation of _compute for custom model, tokenizer and timing
     """
     def _info(self):
-        return evaluate.MetricInfo(
+        return MetricInfo(
             module_type="metric",
             description="_DESCRIPTION",
             citation="_CITATION",
