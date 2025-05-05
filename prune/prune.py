@@ -18,11 +18,11 @@ def normalize(arr):
     ma = max(arr)
     print(f"Min: {mi}, Max: {ma}")
     print(arr)
-    for x in arr:
-        if isnan(x):
-            x = 0
+    for i in range(len(arr)):
+        if isnan(arr[i]):
+            arr[i] = 0
         else:
-            x = (x - mi)/(ma - mi)
+            arr[i] = (arr[i] - mi)/(ma - mi)
     print(arr)
     return arr
 
