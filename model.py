@@ -38,4 +38,6 @@ def add_modeltype(model, name):
         name = 'phogpt'
     elif name == 'meta-llama/Llama-3.2-3B-Instruct':
         name = 'llama'
+    elif name == 'Qwen/Qwen3-4B-FP8' or name == 'Qwen/Qwen3-4B':
+        name = 'qwen'
     setattr(model, 'model_type', name)

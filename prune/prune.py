@@ -8,7 +8,7 @@ def get_transformer_sequential(model):
     """
     if (hasattr(model, 'model_type') and model.model_type == 'phogpt') or hasattr(model, 'transformer'):
         return model.transformer.blocks
-    elif (hasattr(model, 'model_type') and model.model_type == 'llama') or hasattr(model, 'model'):
+    elif (hasattr(model, 'model_type') and model.model_type in ['llama','qwen']) or hasattr(model, 'model'):
         return model.model.layers
     else:
         raise ValueError("Model does not have transformer or model attribute.")
