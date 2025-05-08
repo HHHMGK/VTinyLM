@@ -19,6 +19,8 @@ if [ "$MODEL" = "phogpt" ]; then
     MODEL="vinai/PhoGPT-4B-Chat"
 elif [ "$MODEL" = "llama" ]; then
     MODEL="meta-llama/Llama-3.2-3B-Instruct"
+elif [ "$MODEL" = "qwen" ]; then
+    MODEL="Qwen/Qwen3-4B"
 fi
 
 
