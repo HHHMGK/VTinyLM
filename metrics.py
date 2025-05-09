@@ -28,6 +28,12 @@ class Perplexity(Metric):
     def _compute(
         self, predictions, model, tokenizer, device, batch_size: int = 16, add_start_token: bool = True, max_length=None, measure_time=False
     ):
+        if add_start_token and tokenizer.bos_token is None:
+            # For model without a bos_token
+            # tokenizer.add_special_tokens({"bos_token": tokenizer.pad_token})
+            # tokenizer.bos_token = tokenizer.pad_token
+            # tokenizer.bos_token_id = tokenizer.pad_token_id
+            add_start_token = False
         # if batch_size > 1 (which generally leads to padding being required), and
         # if there is not an already assigned pad_token, assign an existing
         # special token to also be the padding token
