@@ -26,14 +26,9 @@ class Perplexity(Metric):
         )
 
     def _compute(
-        self, predictions, model, tokenizer, device, batch_size: int = 16, add_start_token: bool = True, max_length=None, measure_time=False
+        self, predictions, model, tokenizer, device, batch_size: int = 16, measure_time=False
     ):
-        if add_start_token and tokenizer.bos_token is None:
-            # For model without a bos_token
-            # tokenizer.add_special_tokens({"bos_token": tokenizer.pad_token})
-            # tokenizer.bos_token = tokenizer.pad_token
-            # tokenizer.bos_token_id = tokenizer.pad_token_id
-            add_start_token = False
+        
         # if batch_size > 1 (which generally leads to padding being required), and
         # if there is not an already assigned pad_token, assign an existing
         # special token to also be the padding token
@@ -46,15 +41,6 @@ class Perplexity(Metric):
             ), "If batch_size > 1, model must have at least one special token to use for padding. Please use a different model or set batch_size=1."
             # assign one of the special tokens to also be the pad token
             tokenizer.add_special_tokens({"pad_token": existing_special_tokens[0]})
-
-        if add_start_token and max_length:
-            # leave room for <BOS> token to be added:
-            assert (
-                tokenizer.bos_token is not None
-            ), "Input model must already have a BOS token if using add_start_token=True. Please use a different model, or set add_start_token=False"
-            max_tokenized_len = max_length - 1
-        else:
-            max_tokenized_len = max_length
 
         encodings = tokenizer(
             predictions,

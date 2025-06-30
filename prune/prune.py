@@ -47,7 +47,7 @@ def estimate_importance(model, method='magnitude', prune_data=None, avg=False,
         act = ranking_by_activation(model, prune_data, avg=avg)
         act = normalize(act)
         print(f"Act: {act}")
-        return [m*0.45 + g*0.45 + a*0.1 / 3 for m, g, a in zip(mag, grad, act)]
+        return [m*0.45 + g*0.45 + a*0.1 for m, g, a in zip(mag, grad, act)]
 
     else:
         raise ValueError(f"Unknown method: {method}. Choose from 'magnitude', 'gradient', or 'activation'")
